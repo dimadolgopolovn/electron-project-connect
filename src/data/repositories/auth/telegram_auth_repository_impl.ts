@@ -26,6 +26,9 @@ export class TelegramAuthRepositoryImpl extends TelegramAuthRepository {
   }
 
   async init(): Promise<void> {
+    this.telegramClient.onError = async (err) => {
+      console.log(err);
+    };
     await this.fetchHasSession();
   }
 
@@ -46,8 +49,8 @@ export class TelegramAuthRepositoryImpl extends TelegramAuthRepository {
 
   async logout(): Promise<void> {
     await this.telegramClient.disconnect();
-    await this.telegramClient.session.delete();
-    await this.telegramClient.session.save();
+    this.telegramClient.session.setAuthKey(undefined);
+    this.telegramClient.session.save();
     this.hasSession = false;
   }
 }

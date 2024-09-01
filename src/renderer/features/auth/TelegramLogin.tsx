@@ -24,12 +24,12 @@ export function getTelegramClient(): TelegramClient {
     useWSS: true,
   }));
 }
+let phoneCompleter: Completer<string> = new Completer<string>();
+let passwordCompleter: Completer<string> = new Completer<string>();
+let codeCompleter: Completer<string> = new Completer<string>();
 
 export function TelegramLogin() {
   // idk how connect user input to promise, used Completer pattern
-  let phoneCompleter: Completer<string> = new Completer<string>();
-  let passwordCompleter: Completer<string> = new Completer<string>();
-  let codeCompleter: Completer<string> = new Completer<string>();
 
   const [authState, setAuthState] = useRecoilState(telegramAuthState);
   const [authStep, setAuthStep] = useState(TelegramAuthStep.PHONE);
@@ -64,6 +64,7 @@ export function TelegramLogin() {
     if (tgAuthRepo.hasSession) {
       setAuthState(TelegramAuthState.HAS_SESSION);
     } else {
+      setAuthState(TelegramAuthState.SIGNING_IN);
       await tgAuthRepo.signIn();
       if (tgAuthRepo.hasSession) {
         setAuthState(TelegramAuthState.HAS_SESSION);
