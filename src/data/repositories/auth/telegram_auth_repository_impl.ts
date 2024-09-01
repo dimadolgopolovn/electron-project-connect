@@ -1,41 +1,28 @@
 import { TelegramClient } from 'telegram';
-import { StoreSession } from 'telegram/sessions';
 import { TelegramAuthRepository } from '../../../domain/auth/telegram_auth_repository';
 
 export class TelegramAuthRepositoryImpl extends TelegramAuthRepository {
-  private storeSession = new StoreSession('telegram-session_1');
-
   telegramClient: TelegramClient;
   hasSession: boolean = false;
 
   constructor({
-    apiId,
-    apiHash,
+    telegramClient,
     phoneProvider,
     passwordProvider,
     codeProvider,
   }: {
-    apiId: number;
-    apiHash: string;
+    telegramClient: TelegramClient;
     phoneProvider: () => Promise<string>;
     passwordProvider: () => Promise<string>;
     codeProvider: () => Promise<string>;
   }) {
     super({ phoneProvider, passwordProvider, codeProvider });
-    this.telegramClient = new TelegramClient(
-      this.storeSession,
-      apiId,
-      apiHash,
-      {
-        connectionRetries: 5,
-        useWSS: true,
-      },
-    );
+    this.telegramClient = telegramClient;
   }
 
   async fetchHasSession(): Promise<void> {
-    await this.storeSession.load();
-    this.hasSession = this.storeSession.authKey !== undefined;
+    await this.telegramClient.session.load();
+    this.hasSession = this.telegramClient.session.authKey !== undefined;
   }
 
   async init(): Promise<void> {
@@ -59,7 +46,7 @@ export class TelegramAuthRepositoryImpl extends TelegramAuthRepository {
 
   async logout(): Promise<void> {
     await this.telegramClient.disconnect();
-    await this.storeSession.delete();
+    await this.telegramClient.session.delete();
     await this.telegramClient.session.save();
     this.hasSession = false;
   }

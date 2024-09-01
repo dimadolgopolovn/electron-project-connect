@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Route, MemoryRouter as Router, Routes } from 'react-router-dom';
+import { TelegramClient } from 'telegram';
+import { StoreSession } from 'telegram/sessions';
 import { TelegramAuthRepositoryImpl } from '../data/repositories/auth/telegram_auth_repository_impl';
 import { TelegramAuthRepository } from '../domain/auth/telegram_auth_repository';
 import './App.css';
@@ -35,9 +37,15 @@ function TelegramLogin() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
-  let tgAuthRepo: TelegramAuthRepository = new TelegramAuthRepositoryImpl({
-    apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
-    apiHash: process.env.TELEGRAM_API_HASH ?? '',
+  const storeSession = new StoreSession('telegram_session');
+  const apiId = parseInt(process.env.TELEGRAM_API_ID ?? '');
+  const apiHash = process.env.TELEGRAM_API_HASH ?? '';
+  const telegramClient = new TelegramClient(storeSession, apiId, apiHash, {
+    connectionRetries: 5,
+    useWSS: true,
+  });
+  const tgAuthRepo: TelegramAuthRepository = new TelegramAuthRepositoryImpl({
+    telegramClient: telegramClient,
     phoneProvider: async () => {
       console.log('phoneProvider');
       setAuthState(AuthState.PHONE);
