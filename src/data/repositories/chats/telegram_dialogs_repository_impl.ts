@@ -4,7 +4,7 @@ import {
   GetDialogsRequest,
   TypeMessageMediaEntity,
 } from '../../../domain/chats/entities/chats_entities';
-import { TelegramDialogsRepository } from '../../../domain/chats/repositories/telegram_chats_repository';
+import { TelegramDialogsRepository } from '../../../domain/chats/repositories/telegram_dialogs_repository';
 
 export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
   constructor({ telegramClient }: { telegramClient: TelegramClient }) {
