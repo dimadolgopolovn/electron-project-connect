@@ -1,7 +1,6 @@
 import { TelegramClient } from 'telegram';
-import { TelegramAuthRepository } from '../../../domain/auth/telegram_auth_repository';
 
-export class TelegramAuthRepositoryImpl extends TelegramAuthRepository {
+export class TelegramAuthRepository {
   constructor({
     telegramClient,
     phoneProvider,
@@ -13,11 +12,17 @@ export class TelegramAuthRepositoryImpl extends TelegramAuthRepository {
     passwordProvider: () => Promise<string>;
     codeProvider: () => Promise<string>;
   }) {
-    super({ phoneProvider, passwordProvider, codeProvider });
     this.telegramClient = telegramClient;
+    this.phoneProvider = phoneProvider;
+    this.passwordProvider = passwordProvider;
+    this.codeProvider = codeProvider;
   }
 
   telegramClient: TelegramClient;
+  phoneProvider: () => Promise<string>;
+  passwordProvider: () => Promise<string>;
+  codeProvider: () => Promise<string>;
+
   hasSession: boolean = false;
 
   async fetchHasSession(): Promise<void> {

@@ -1,9 +1,8 @@
 import styled from '@emotion/styled';
+import { DialogEntity } from 'chat-module';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { TelegramDialogsRepositoryImpl } from '../../../data/repositories/chats/telegram_dialogs_repository_impl';
-import { DialogEntity } from '../../../domain/chats/entities/chats_entities';
-import { TelegramDialogsRepository } from '../../../domain/chats/repositories/telegram_dialogs_repository';
+import { TelegramDialogsRepository } from 'telegram-chat-module';
 import { TelegramAuthState } from '../auth/enums/telegram_auth_state';
 import {
   getTelegramClient,
@@ -43,10 +42,9 @@ const MainChatContainer = styled.div((props) => ({
 async function loadDialogs(): Promise<DialogEntity[]> {
   const telegramCLient = getTelegramClient();
   await telegramCLient.connect();
-  const dialogsRepository: TelegramDialogsRepository =
-    new TelegramDialogsRepositoryImpl({
-      telegramClient: telegramCLient,
-    });
+  const dialogsRepository = new TelegramDialogsRepository({
+    telegramClient: telegramCLient,
+  });
   return await dialogsRepository.getChats({
     limit: 10,
     ignorePinned: false,

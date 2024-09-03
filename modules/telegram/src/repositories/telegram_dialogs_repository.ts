@@ -1,12 +1,13 @@
-import { TelegramClient } from 'telegram';
 import {
   DialogEntity,
+  DialogsRepository,
   GetDialogsRequest,
   TypeMessageMediaEntity,
-} from '../../../domain/chats/entities/chats_entities';
-import { TelegramDialogsRepository } from '../../../domain/chats/repositories/telegram_dialogs_repository';
+  UserId,
+} from 'chat-module';
+import { TelegramClient } from 'telegram';
 
-export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
+export class TelegramDialogsRepository extends DialogsRepository {
   constructor({ telegramClient }: { telegramClient: TelegramClient }) {
     super();
     this.telegramClient = telegramClient;
@@ -33,6 +34,18 @@ export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
           url: telegramMedia.photo?.id, // TODO (gicha): implement this with the correct value
         };
       }
+      let lastMessageFromId: UserId | undefined;
+      if (lastMessage?.fromId && lastMessage.fromId.className === 'PeerUser') {
+        lastMessageFromId = {
+          userId: lastMessage.fromId.userId,
+        };
+      }
+      let lastMessageToId: UserId | undefined;
+      if (lastMessage?.toId && lastMessage.toId.className === 'PeerUser') {
+        lastMessageToId = {
+          userId: lastMessage.toId.userId,
+        };
+      }
 
       return <DialogEntity>{
         pinned: dialog.pinned,
@@ -41,13 +54,18 @@ export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
           id: lastMessage?.id,
           out: lastMessage?.out,
           date: lastMessage?.date,
-          fromId: lastMessage?.fromId,
-          toId: lastMessage?.toId,
+          fromId: lastMessageFromId,
+          toId: lastMessageToId,
           messageText: lastMessage?.message,
           media: lastMessageMedia,
           replyTo: lastMessage?.replyTo,
           action: lastMessage?.action,
           entities: lastMessage?.entities,
+          views: lastMessage?.views,
+          editDate: lastMessage?.editDate,
+          groupedId: lastMessage?.groupedId,
+          postAuthor: lastMessage?.postAuthor,
+          ttlPeriod: lastMessage?.ttlPeriod,
         },
         date: dialog.date,
         id: dialog?.id,

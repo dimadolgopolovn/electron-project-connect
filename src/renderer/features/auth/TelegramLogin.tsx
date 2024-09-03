@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { atom, useRecoilState } from 'recoil';
 import { TelegramClient } from 'telegram';
+import { TelegramAuthRepository } from 'telegram-chat-module';
 import { StoreSession } from 'telegram/sessions';
-import { TelegramAuthRepositoryImpl } from '../../../data/repositories/auth/telegram_auth_repository_impl';
-import { TelegramAuthRepository } from '../../../domain/auth/telegram_auth_repository';
 import { Completer } from '../../../utils/completer';
 import { TelegramAuthState } from './enums/telegram_auth_state';
 import { TelegramAuthStep } from './enums/telegram_auth_step';
@@ -14,6 +13,10 @@ export const telegramAuthState = atom({
 });
 
 let telegramClient: TelegramClient;
+let phoneCompleter: Completer<string> = new Completer<string>();
+let passwordCompleter: Completer<string> = new Completer<string>();
+let codeCompleter: Completer<string> = new Completer<string>();
+
 export function getTelegramClient(): TelegramClient {
   if (telegramClient) return telegramClient;
   const storeSession = new StoreSession('telegram_session');
@@ -24,11 +27,8 @@ export function getTelegramClient(): TelegramClient {
     useWSS: true,
   }));
 }
-let phoneCompleter: Completer<string> = new Completer<string>();
-let passwordCompleter: Completer<string> = new Completer<string>();
-let codeCompleter: Completer<string> = new Completer<string>();
 
-export function TelegramLogin() {
+export const TelegramLogin: React.FC = () => {
   // idk how connect user input to promise, used Completer pattern
 
   const [authState, setAuthState] = useRecoilState(telegramAuthState);
@@ -37,7 +37,7 @@ export function TelegramLogin() {
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const telegramClient = getTelegramClient();
-  const tgAuthRepo: TelegramAuthRepository = new TelegramAuthRepositoryImpl({
+  const tgAuthRepo = new TelegramAuthRepository({
     telegramClient: telegramClient,
     phoneProvider: async () => {
       console.log('phoneProvider');
@@ -169,4 +169,4 @@ export function TelegramLogin() {
       )}
     </div>
   );
-}
+};
