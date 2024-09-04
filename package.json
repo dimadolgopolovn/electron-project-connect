@@ -100,6 +100,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "assert": "^2.1.0",
+    "chat-module": "file:modules/common",
     "constants": "^0.0.2",
     "constants-browserify": "^1.0.0",
     "crypto": "^1.0.1",
@@ -122,6 +123,7 @@
     "stream": "^0.0.3",
     "stream-browserify": "^3.0.0",
     "telegram": "^2.24.10",
+    "telegram-chat-module": "file:modules/telegram",
     "util": "^0.12.5"
   },
   "devDependencies": {

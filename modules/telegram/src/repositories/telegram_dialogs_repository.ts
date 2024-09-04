@@ -1,12 +1,13 @@
-import { TelegramClient } from 'telegram';
 import {
   DialogEntity,
+  DialogsRepository,
   GetDialogsRequest,
+  LastMessageEntity,
   TypeMessageMediaEntity,
-} from '../../../domain/chats/entities/chats_entities';
-import { TelegramDialogsRepository } from '../../../domain/chats/repositories/telegram_dialogs_repository';
+} from 'chat-module';
+import { TelegramClient } from 'telegram';
 
-export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
+export class TelegramDialogsRepository extends DialogsRepository {
   constructor({ telegramClient }: { telegramClient: TelegramClient }) {
     super();
     this.telegramClient = telegramClient;
@@ -14,7 +15,8 @@ export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
 
   telegramClient: TelegramClient;
 
-  async getChats(request: GetDialogsRequest): Promise<DialogEntity[]> {
+  async getDialogsList(request: GetDialogsRequest): Promise<DialogEntity[]> {
+    await this.telegramClient.connect();
     const telegramDialogs = await this.telegramClient.getDialogs({
       limit: request.limit,
       offsetDate: request.offsetDate,
@@ -33,6 +35,14 @@ export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
           url: telegramMedia.photo?.id, // TODO (gicha): implement this with the correct value
         };
       }
+      let lastMessageFromId: string | undefined;
+      let lastMessageToId: string | undefined;
+      if (lastMessage?.fromId && lastMessage.fromId.className === 'PeerUser') {
+        lastMessageFromId = lastMessage?.fromId?.userId?.toString();
+      }
+      if (lastMessage?.toId && lastMessage.toId.className === 'PeerUser') {
+        lastMessageToId = lastMessage?.toId?.userId?.toString();
+      }
 
       return <DialogEntity>{
         pinned: dialog.pinned,
@@ -41,16 +51,21 @@ export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
           id: lastMessage?.id,
           out: lastMessage?.out,
           date: lastMessage?.date,
-          fromId: lastMessage?.fromId,
-          toId: lastMessage?.toId,
+          fromId: lastMessageFromId,
+          toId: lastMessageToId,
           messageText: lastMessage?.message,
           media: lastMessageMedia,
           replyTo: lastMessage?.replyTo,
           action: lastMessage?.action,
           entities: lastMessage?.entities,
+          views: lastMessage?.views,
+          editDate: lastMessage?.editDate,
+          groupedId: lastMessage?.groupedId,
+          postAuthor: lastMessage?.postAuthor,
+          ttlPeriod: lastMessage?.ttlPeriod,
         },
         date: dialog.date,
-        id: dialog?.id,
+        id: dialog?.id?.toString(),
         name: dialog?.name,
         title: dialog?.title,
         unreadCount: dialog.unreadCount,
@@ -62,7 +77,8 @@ export class TelegramDialogsRepositoryImpl extends TelegramDialogsRepository {
     });
   }
 
-  getChatById(chatId: string): Promise<DialogEntity> {
+  onMessageReceived(newMessage: LastMessageEntity): void {
+    // TODO: Implement this method
     throw new Error('Method not implemented.');
   }
 }

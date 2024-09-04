@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { atom, useRecoilState } from 'recoil';
-import { TelegramClient } from 'telegram';
-import { StoreSession } from 'telegram/sessions';
-import { TelegramAuthRepositoryImpl } from '../../../data/repositories/auth/telegram_auth_repository_impl';
-import { TelegramAuthRepository } from '../../../domain/auth/telegram_auth_repository';
+import { TelegramAuthRepository } from 'telegram-chat-module';
 import { Completer } from '../../../utils/completer';
 import { TelegramAuthState } from './enums/telegram_auth_state';
 import { TelegramAuthStep } from './enums/telegram_auth_step';
@@ -13,60 +10,47 @@ export const telegramAuthState = atom({
   default: TelegramAuthState.INIT,
 });
 
-let telegramClient: TelegramClient;
-export function getTelegramClient(): TelegramClient {
-  if (telegramClient) return telegramClient;
-  const storeSession = new StoreSession('telegram_session');
-  const apiId = parseInt(process.env.TELEGRAM_API_ID ?? '');
-  const apiHash = process.env.TELEGRAM_API_HASH ?? '';
-  return (telegramClient = new TelegramClient(storeSession, apiId, apiHash, {
-    connectionRetries: 5,
-    useWSS: true,
-  }));
-}
 let phoneCompleter: Completer<string> = new Completer<string>();
 let passwordCompleter: Completer<string> = new Completer<string>();
 let codeCompleter: Completer<string> = new Completer<string>();
 
-export function TelegramLogin() {
+export const TelegramLogin: React.FC<{
+  authRepository: TelegramAuthRepository;
+}> = ({ authRepository }) => {
   // idk how connect user input to promise, used Completer pattern
-
   const [authState, setAuthState] = useRecoilState(telegramAuthState);
   const [authStep, setAuthStep] = useState(TelegramAuthStep.PHONE);
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
-  const telegramClient = getTelegramClient();
-  const tgAuthRepo: TelegramAuthRepository = new TelegramAuthRepositoryImpl({
-    telegramClient: telegramClient,
-    phoneProvider: async () => {
-      console.log('phoneProvider');
-      setAuthStep(TelegramAuthStep.PHONE);
-      phoneCompleter = new Completer<string>();
-      return phoneCompleter.promise;
-    },
-    passwordProvider: async () => {
-      console.log('passwordProvider');
-      setAuthStep(TelegramAuthStep.PASSWORD);
-      passwordCompleter = new Completer<string>();
-      return passwordCompleter.promise;
-    },
-    codeProvider: async () => {
-      console.log('codeProvider');
-      setAuthStep(TelegramAuthStep.CODE);
-      codeCompleter = new Completer<string>();
-      return codeCompleter.promise;
-    },
-  });
 
   const initTelegramCallback = async () => {
-    await tgAuthRepo.init();
-    if (tgAuthRepo.hasSession) {
+    await authRepository.init();
+    if (authRepository.hasSession) {
       setAuthState(TelegramAuthState.HAS_SESSION);
     } else {
       setAuthState(TelegramAuthState.SIGNING_IN);
-      await tgAuthRepo.signIn();
-      if (tgAuthRepo.hasSession) {
+      await authRepository.signIn({
+        phoneProvider: async () => {
+          console.log('phoneProvider');
+          setAuthStep(TelegramAuthStep.PHONE);
+          phoneCompleter = new Completer<string>();
+          return phoneCompleter.promise;
+        },
+        passwordProvider: async () => {
+          console.log('passwordProvider');
+          setAuthStep(TelegramAuthStep.PASSWORD);
+          passwordCompleter = new Completer<string>();
+          return passwordCompleter.promise;
+        },
+        codeProvider: async () => {
+          console.log('codeProvider');
+          setAuthStep(TelegramAuthStep.CODE);
+          codeCompleter = new Completer<string>();
+          return codeCompleter.promise;
+        },
+      });
+      if (authRepository.hasSession) {
         setAuthState(TelegramAuthState.HAS_SESSION);
       }
     }
@@ -159,7 +143,7 @@ export function TelegramLogin() {
           <p>Has session</p>
           <button
             onClick={async () => {
-              await tgAuthRepo.logout();
+              await authRepository.logout();
               setAuthState(TelegramAuthState.INIT);
             }}
           >
@@ -169,4 +153,4 @@ export function TelegramLogin() {
       )}
     </div>
   );
-}
+};
