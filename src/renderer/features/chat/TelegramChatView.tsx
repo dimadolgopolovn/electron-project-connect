@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { DialogEntity } from 'chat-module';
 import React, { useEffect, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { Api } from 'telegram';
 import {
   TelegramChatModule,
@@ -11,10 +12,10 @@ const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow-y: auto; // Ensure this is correct
   width: 100%;
   background-color: #1a222c;
   padding: 20px;
-  overflow-y: auto;
 `;
 
 const MessageContainer = styled.div`
@@ -99,11 +100,13 @@ const formatTime = (date: number) => {
 const fetchMessages = async (
   chatId: string,
   chatRepository: TelegramChatRepository,
+  newerThanId?: number | undefined,
 ): Promise<Api.Message[]> => {
   const messages = await chatRepository.getMessages(chatId, {
     limit: 10,
+    maxId: newerThanId,
   });
-  return messages.reverse();
+  return messages;
 };
 
 export const TelegramChatView: React.FC<{
@@ -111,49 +114,79 @@ export const TelegramChatView: React.FC<{
   dialogEntity: DialogEntity;
 }> = ({ chatModule, dialogEntity }) => {
   const [messages, setMessages] = useState<Api.Message[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  useEffect(() => {
-    const getMessages = async () => {
-      try {
-        const fetchedMessages = await fetchMessages(
-          dialogEntity.id!,
-          chatModule.chatRepository,
-        );
-        setMessages(fetchedMessages);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    };
-    getMessages();
-  }, [dialogEntity.id]);
+  const [hasMore, setHasMore] = useState(true);
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const newMessage = {
-        isUser: true,
-        text: inputValue,
-        time: new Date().toLocaleTimeString(),
-      };
-      // setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setInputValue(''); // Clear the input field
+  const [inputValue, setInputValue] = useState('');
+  const getMessages = async (lastMessageId: number | undefined) => {
+    try {
+      const fetchedMessages = await fetchMessages(
+        dialogEntity.id!,
+        chatModule.chatRepository,
+        lastMessageId,
+      );
+      if (fetchedMessages.length === 0) {
+        setHasMore(false);
+      }
+      setMessages([...messages, ...fetchedMessages]);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
     }
   };
+  useEffect(() => {
+    setMessages([]);
+    setHasMore(true);
+    getMessages(undefined);
+  }, [dialogEntity.id]);
+
+  const handleSendMessage = () => {};
   return (
     <div>
-      <ChatContainer>
-        {messages.map((msg, index) => (
-          <MessageContainer key={index}>
-            {chatModule.chatRepository.isMyMessage(msg) ? (
-              <UserMessage>{msg.text}</UserMessage>
-            ) : (
-              <OtherMessage>{msg.text}</OtherMessage>
-            )}
-            <TimeStamp isUser={chatModule.chatRepository.isMyMessage(msg)}>
-              {formatTime(msg.date)}
-            </TimeStamp>
-          </MessageContainer>
-        ))}
-      </ChatContainer>
+      {/* <ChatContainer> */}
+      <div id="scrollableDiv" style={{ height: 900, overflow: 'auto' }}>
+        <InfiniteScroll
+          dataLength={messages.length}
+          next={() =>
+            getMessages(
+              messages.length === 0
+                ? undefined
+                : messages[messages.length - 1].id,
+            )
+          }
+          hasMore={hasMore}
+          loader={<h4>Loading...</h4>}
+          style={{ display: 'flex', flexDirection: 'column' }}
+          // inverse={true}
+          scrollableTarget="scrollableDiv"
+          endMessage={
+            <p style={{ textAlign: 'center' }}>
+              <b>Yay! You have seen it all</b>
+            </p>
+          }
+          pullDownToRefreshThreshold={50}
+          pullDownToRefreshContent={
+            <h3 style={{ textAlign: 'center' }}>
+              &#8595; Pull down to refresh
+            </h3>
+          }
+          releaseToRefreshContent={
+            <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
+          }
+        >
+          {messages.map((msg, index) => (
+            <MessageContainer key={index}>
+              {chatModule.chatRepository.isMyMessage(msg) ? (
+                <UserMessage>{msg.text}</UserMessage>
+              ) : (
+                <OtherMessage>{msg.text}</OtherMessage>
+              )}
+              <TimeStamp isUser={chatModule.chatRepository.isMyMessage(msg)}>
+                {formatTime(msg.date)}
+              </TimeStamp>
+            </MessageContainer>
+          ))}
+        </InfiniteScroll>
+      </div>
+      {/* </ChatContainer> */}
 
       <InputContainer>
         <Input
