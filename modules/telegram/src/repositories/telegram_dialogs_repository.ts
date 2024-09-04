@@ -2,8 +2,8 @@ import {
   DialogEntity,
   DialogsRepository,
   GetDialogsRequest,
+  LastMessageEntity,
   TypeMessageMediaEntity,
-  UserId,
 } from 'chat-module';
 import { TelegramClient } from 'telegram';
 
@@ -15,7 +15,8 @@ export class TelegramDialogsRepository extends DialogsRepository {
 
   telegramClient: TelegramClient;
 
-  async getChats(request: GetDialogsRequest): Promise<DialogEntity[]> {
+  async getDialogsList(request: GetDialogsRequest): Promise<DialogEntity[]> {
+    await this.telegramClient.connect();
     const telegramDialogs = await this.telegramClient.getDialogs({
       limit: request.limit,
       offsetDate: request.offsetDate,
@@ -34,17 +35,13 @@ export class TelegramDialogsRepository extends DialogsRepository {
           url: telegramMedia.photo?.id, // TODO (gicha): implement this with the correct value
         };
       }
-      let lastMessageFromId: UserId | undefined;
+      let lastMessageFromId: string | undefined;
+      let lastMessageToId: string | undefined;
       if (lastMessage?.fromId && lastMessage.fromId.className === 'PeerUser') {
-        lastMessageFromId = {
-          userId: lastMessage.fromId.userId,
-        };
+        lastMessageFromId = lastMessage?.fromId?.userId?.toString();
       }
-      let lastMessageToId: UserId | undefined;
       if (lastMessage?.toId && lastMessage.toId.className === 'PeerUser') {
-        lastMessageToId = {
-          userId: lastMessage.toId.userId,
-        };
+        lastMessageToId = lastMessage?.toId?.userId?.toString();
       }
 
       return <DialogEntity>{
@@ -68,7 +65,7 @@ export class TelegramDialogsRepository extends DialogsRepository {
           ttlPeriod: lastMessage?.ttlPeriod,
         },
         date: dialog.date,
-        id: dialog?.id,
+        id: dialog?.id?.toString(),
         name: dialog?.name,
         title: dialog?.title,
         unreadCount: dialog.unreadCount,
@@ -80,7 +77,8 @@ export class TelegramDialogsRepository extends DialogsRepository {
     });
   }
 
-  getChatById(chatId: string): Promise<DialogEntity> {
+  onMessageReceived(newMessage: LastMessageEntity): void {
+    // TODO: Implement this method
     throw new Error('Method not implemented.');
   }
 }

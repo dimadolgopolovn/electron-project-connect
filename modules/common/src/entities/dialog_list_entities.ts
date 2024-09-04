@@ -1,7 +1,8 @@
-import { BigInteger } from 'big-integer';
-import { MessageEntity } from './dialog_entities';
+import { LastMessageEntity, UnifiedObjectId } from './dialog_entities';
 
 export interface GetDialogsRequest {
+  /** Whether the dialogs should be fetched from scratch, or if they should be retrieved from cache if possible. */
+  forceRefresh?: boolean;
   /**  How many dialogs to be retrieved as maximum. Can be set to undefined to retrieve all dialogs.<br/>
    * Note that this may take whole minutes if you have hundreds of dialogs, as Telegram will tell the library to slow down through a FloodWaitError.*/
   limit?: number;
@@ -24,9 +25,9 @@ export interface GetDialogsRequest {
 export interface DialogEntity {
   pinned: boolean;
   archived: boolean;
-  message?: MessageEntity;
+  message?: LastMessageEntity;
   date: number;
-  id?: BigInteger;
+  id?: UnifiedObjectId;
   name?: string;
   title?: string;
   unreadCount: number;

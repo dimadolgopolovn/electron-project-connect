@@ -14,6 +14,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./aggregators/dialogs_aggregator"), exports);
+__exportStar(require("./chat_module"), exports);
 __exportStar(require("./entities/dialog_entities"), exports);
 __exportStar(require("./entities/dialog_list_entities"), exports);
 __exportStar(require("./repositories/dialogs_repository"), exports);

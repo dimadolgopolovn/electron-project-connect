@@ -1,14 +1,14 @@
 import styled from '@emotion/styled';
 import { DialogEntity } from 'chat-module';
+import { DialogAggregator } from 'chat-module/dist/aggregators/dialogs_aggregator';
+import { ChatModule } from 'chat-module/dist/chat_module';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { TelegramDialogsRepository } from 'telegram-chat-module';
+import { TelegramAuthRepository } from 'telegram-chat-module';
+import { TelegramChatModule } from 'telegram-chat-module/dist/telefram-chat-module';
+import { StoreSession } from 'telegram/sessions';
 import { TelegramAuthState } from '../auth/enums/telegram_auth_state';
-import {
-  getTelegramClient,
-  telegramAuthState,
-  TelegramLogin,
-} from '../auth/TelegramLogin';
+import { telegramAuthState, TelegramLogin } from '../auth/TelegramLogin';
 import { DialogTile } from './widgets/DialogTile'; // Assuming DialogTile is your chat item component
 
 // Left column containing the list of chats
@@ -39,13 +39,21 @@ const MainChatContainer = styled.div((props) => ({
   height: '100vh', // Full viewport height for the chat window
 }));
 
+export const telegramChatModule = new TelegramChatModule({
+  storeSession: new StoreSession('telegram_session_kdokdkdk'),
+  apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
+  apiHash: process.env.TELEGRAM_API_HASH ?? '',
+  authRepositoryBuilder: (client) =>
+    new TelegramAuthRepository({ telegramClient: client }),
+});
+export const modules: ChatModule[] = [telegramChatModule];
+const dialogsAggregator = new DialogAggregator(modules);
+
 async function loadDialogs(): Promise<DialogEntity[]> {
-  const telegramCLient = getTelegramClient();
-  await telegramCLient.connect();
-  const dialogsRepository = new TelegramDialogsRepository({
-    telegramClient: telegramCLient,
-  });
-  return await dialogsRepository.getChats({
+  for (const module of modules) {
+    console.log(module);
+  }
+  return dialogsAggregator.getDialogsList({
     limit: 10,
     ignorePinned: false,
     archived: false,
@@ -58,10 +66,11 @@ export const DialogsList: React.FC = () => {
   const [authState] = useRecoilState(telegramAuthState);
 
   useEffect(() => {
+    // TODO: modify auth logic here
     if (authState === TelegramAuthState.HAS_SESSION) {
-      loadDialogs().then((dialogs) => {
-        setDialogsList(dialogs);
-      });
+      Promise.all(modules.map((module) => module.init())).then(() =>
+        loadDialogs().then(setDialogsList),
+      );
     }
   }, [authState]);
   return (
@@ -99,7 +108,7 @@ export const DialogsList: React.FC = () => {
           </>
         ) : (
           // <p>Please select a chat to view the content.</p>
-          <TelegramLogin />
+          <TelegramLogin authRepository={telegramChatModule.authRepository} />
         )}
       </ChatContentArea>
     </MainChatContainer>

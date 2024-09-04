@@ -61,23 +61,26 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
         _this.telegramClient = telegramClient;
         return _this;
     }
-    TelegramDialogsRepository.prototype.getChats = function (request) {
+    TelegramDialogsRepository.prototype.getDialogsList = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             var telegramDialogs;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.telegramClient.getDialogs({
-                            limit: request.limit,
-                            offsetDate: request.offsetDate,
-                            offsetId: request.offsetId,
-                            ignorePinned: request.ignorePinned,
-                            folder: request.folder,
-                            archived: request.archived,
-                        })];
+                    case 0: return [4 /*yield*/, this.telegramClient.connect()];
                     case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.telegramClient.getDialogs({
+                                limit: request.limit,
+                                offsetDate: request.offsetDate,
+                                offsetId: request.offsetId,
+                                ignorePinned: request.ignorePinned,
+                                folder: request.folder,
+                                archived: request.archived,
+                            })];
+                    case 2:
                         telegramDialogs = _a.sent();
                         return [2 /*return*/, telegramDialogs.map(function (dialog) {
-                                var _a;
+                                var _a, _b, _c, _d, _e, _f;
                                 var lastMessage = dialog.message;
                                 var telegramMedia = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.media;
                                 var lastMessageMedia;
@@ -88,16 +91,12 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
                                     };
                                 }
                                 var lastMessageFromId;
-                                if ((lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.fromId) && lastMessage.fromId.className === 'PeerUser') {
-                                    lastMessageFromId = {
-                                        userId: lastMessage.fromId.userId,
-                                    };
-                                }
                                 var lastMessageToId;
+                                if ((lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.fromId) && lastMessage.fromId.className === 'PeerUser') {
+                                    lastMessageFromId = (_c = (_b = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.fromId) === null || _b === void 0 ? void 0 : _b.userId) === null || _c === void 0 ? void 0 : _c.toString();
+                                }
                                 if ((lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.toId) && lastMessage.toId.className === 'PeerUser') {
-                                    lastMessageToId = {
-                                        userId: lastMessage.toId.userId,
-                                    };
+                                    lastMessageToId = (_e = (_d = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.toId) === null || _d === void 0 ? void 0 : _d.userId) === null || _e === void 0 ? void 0 : _e.toString();
                                 }
                                 return {
                                     pinned: dialog.pinned,
@@ -120,7 +119,7 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
                                         ttlPeriod: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.ttlPeriod,
                                     },
                                     date: dialog.date,
-                                    id: dialog === null || dialog === void 0 ? void 0 : dialog.id,
+                                    id: (_f = dialog === null || dialog === void 0 ? void 0 : dialog.id) === null || _f === void 0 ? void 0 : _f.toString(),
                                     name: dialog === null || dialog === void 0 ? void 0 : dialog.name,
                                     title: dialog === null || dialog === void 0 ? void 0 : dialog.title,
                                     unreadCount: dialog.unreadCount,
@@ -134,7 +133,8 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
             });
         });
     };
-    TelegramDialogsRepository.prototype.getChatById = function (chatId) {
+    TelegramDialogsRepository.prototype.onMessageReceived = function (newMessage) {
+        // TODO: Implement this method
         throw new Error('Method not implemented.');
     };
     return TelegramDialogsRepository;

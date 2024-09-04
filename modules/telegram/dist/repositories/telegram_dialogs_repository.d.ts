@@ -1,10 +1,10 @@
-import { DialogEntity, DialogsRepository, GetDialogsRequest } from 'chat-module';
+import { DialogEntity, DialogsRepository, GetDialogsRequest, LastMessageEntity } from 'chat-module';
 import { TelegramClient } from 'telegram';
 export declare class TelegramDialogsRepository extends DialogsRepository {
     constructor({ telegramClient }: {
         telegramClient: TelegramClient;
     });
     telegramClient: TelegramClient;
-    getChats(request: GetDialogsRequest): Promise<DialogEntity[]>;
-    getChatById(chatId: string): Promise<DialogEntity>;
+    getDialogsList(request: GetDialogsRequest): Promise<DialogEntity[]>;
+    onMessageReceived(newMessage: LastMessageEntity): void;
 }

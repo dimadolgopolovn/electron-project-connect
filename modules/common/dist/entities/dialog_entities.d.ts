@@ -1,7 +1,4 @@
-import { BigInteger } from 'big-integer';
-export interface UserId {
-    userId: BigInteger;
-}
+export type UnifiedObjectId = string;
 export type TypeMessageMediaEntity = MessageMediaPhotoEntity | MessageMediaUnsupportedEntity;
 export interface MessageMediaPhotoEntity {
     spoiler?: boolean | undefined;
@@ -9,7 +6,7 @@ export interface MessageMediaPhotoEntity {
 }
 export interface MessageMediaUnsupportedEntity {
 }
-export interface MessageEntity {
+export interface LastMessageEntity {
     /**
      * Whether the message is outgoing (i.e. you sent it from
      * another session) or incoming (i.e. someone else sent it).
@@ -31,7 +28,7 @@ export interface MessageEntity {
      * {@link Api.PeerUser}, {@link Api.PeerChat} or {@link Api.PeerChannel}.
      * This value will be `undefined` for anonymous messages.
      */
-    fromId?: UserId;
+    fromId?: UnifiedObjectId;
     /**
      * The timestamp indicating when this message was sent.
      * This will always be present except for empty messages.
@@ -57,22 +54,7 @@ export interface MessageEntity {
      */
     views?: number;
     /**
-     * The date when this message was last edited.
-     */
-    editDate?: number;
-    /**
      * The display name of the message sender to show in messages sent to broadcast channels.
      */
     postAuthor?: string;
-    /**
-     *  If this message belongs to a group of messages (photo albums or video albums),
-     *  all of them will have the same value here.
-     */
-    groupedId?: BigInteger;
-    /**
-     * The Time To Live period configured for this message.
-     * The message should be erased from wherever it's stored (memory, a
-     * local database, etc.) when this threshold is met.
-     */
-    ttlPeriod?: number;
 }

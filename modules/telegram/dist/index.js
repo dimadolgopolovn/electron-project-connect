@@ -16,3 +16,4 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./repositories/telegram_auth_repository"), exports);
 __exportStar(require("./repositories/telegram_dialogs_repository"), exports);
+__exportStar(require("./telegram-chat-module"), exports);

@@ -39,21 +39,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TelegramAuthRepository = void 0;
 var TelegramAuthRepository = /** @class */ (function () {
     function TelegramAuthRepository(_a) {
-        var telegramClient = _a.telegramClient, phoneProvider = _a.phoneProvider, passwordProvider = _a.passwordProvider, codeProvider = _a.codeProvider;
-        this.hasSession = false;
+        var telegramClient = _a.telegramClient;
         this.telegramClient = telegramClient;
-        this.phoneProvider = phoneProvider;
-        this.passwordProvider = passwordProvider;
-        this.codeProvider = codeProvider;
     }
-    TelegramAuthRepository.prototype.fetchHasSession = function () {
+    Object.defineProperty(TelegramAuthRepository.prototype, "hasSession", {
+        get: function () {
+            return this.telegramClient.session.authKey !== undefined;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    TelegramAuthRepository.prototype.fetchSession = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.telegramClient.session.load()];
                     case 1:
                         _a.sent();
-                        this.hasSession = this.telegramClient.session.authKey !== undefined;
                         return [2 /*return*/];
                 }
             });
@@ -71,7 +73,7 @@ var TelegramAuthRepository = /** @class */ (function () {
                                 return [2 /*return*/];
                             });
                         }); };
-                        return [4 /*yield*/, this.fetchHasSession()];
+                        return [4 /*yield*/, this.fetchSession()];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -79,24 +81,25 @@ var TelegramAuthRepository = /** @class */ (function () {
             });
         });
     };
-    TelegramAuthRepository.prototype.signIn = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+    TelegramAuthRepository.prototype.signIn = function (_a) {
+        return __awaiter(this, arguments, void 0, function (_b) {
+            var phoneProvider = _b.phoneProvider, passwordProvider = _b.passwordProvider, codeProvider = _b.codeProvider;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0: return [4 /*yield*/, this.telegramClient.start({
-                            phoneNumber: this.phoneProvider,
-                            password: this.passwordProvider,
-                            phoneCode: this.codeProvider,
+                            phoneNumber: phoneProvider,
+                            password: passwordProvider,
+                            phoneCode: codeProvider,
                             onError: function (err) {
                                 console.log(err);
                                 throw err;
                             },
                         })];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.fetchHasSession()];
+                        _c.sent();
+                        return [4 /*yield*/, this.fetchSession()];
                     case 2:
-                        _a.sent();
+                        _c.sent();
                         console.log('You should now be connected.');
                         console.log(this.telegramClient.session.save()); // Save this string to avoid logging in again
                         return [2 /*return*/];
@@ -113,7 +116,6 @@ var TelegramAuthRepository = /** @class */ (function () {
                         _a.sent();
                         this.telegramClient.session.setAuthKey(undefined);
                         this.telegramClient.session.save();
-                        this.hasSession = false;
                         return [2 /*return*/];
                 }
             });
