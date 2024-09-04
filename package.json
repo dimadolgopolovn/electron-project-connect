@@ -1,5 +1,5 @@
 {
-  "description": "A foundation for scalable desktop apps",
+  "description": "All-in-one messenger + personal assistant to help you manage your relationships.",
   "keywords": [
     "electron",
     "boilerplate",
@@ -11,27 +11,15 @@
     "hot",
     "reload"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
-  "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/dimadolgopolovn/electron-project-connect.git"
   },
-  "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "Perilla Labs",
+    "email": "dima@perillalabs.com",
+    "url": "https://perillalabs.com"
   },
-  "contributors": [
-    {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    }
-  ],
   "main": "./src/main/main.ts",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
@@ -51,6 +39,8 @@
   "browserslist": [],
   "prettier": {
     "singleQuote": true,
+    "trailingComma": "all",
+    "semi": false,
     "overrides": [
       {
         "files": [
@@ -97,10 +87,12 @@
   },
   "dependencies": {
     "@electron/notarize": "^2.3.2",
+    "@emotion/styled": "^11.13.0",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
     "react": "^18.2.0",
+    "react-chat-elements": "github:dimadolgopolovn/react-chat-elements",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0"
   },
@@ -133,7 +125,7 @@
     "electronmon": "^2.0.2",
     "eslint": "^8.49.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-erb": "^4.1.0-0",
+    "eslint-config-erb": "4.1.0-0",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-import-resolver-webpack": "^0.13.7",
     "eslint-plugin-compat": "^4.2.0",
@@ -170,8 +162,8 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "ProjectConnect",
+    "appId": "org.perillalabs.projectconnect",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -230,12 +222,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "owner": "Perilla Labs"
     }
-  },
-  "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
   },
   "devEngines": {
     "node": ">=14.x",
