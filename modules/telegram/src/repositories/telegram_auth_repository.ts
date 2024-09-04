@@ -1,4 +1,4 @@
-import { TelegramClient } from 'telegram';
+import { Api, TelegramClient } from 'telegram';
 
 export class TelegramAuthRepository {
   constructor({ telegramClient }: { telegramClient: TelegramClient }) {
@@ -40,9 +40,14 @@ export class TelegramAuthRepository {
         throw err;
       },
     });
+    await this.telegramClient.connect();
     await this.fetchSession();
     console.log('You should now be connected.');
     console.log(this.telegramClient.session.save()); // Save this string to avoid logging in again
+  }
+
+  async getMyUser(): Promise<Api.User> {
+    return this.telegramClient.getMe();
   }
 
   async logout(): Promise<void> {

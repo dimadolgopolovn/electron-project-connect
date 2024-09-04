@@ -97,13 +97,23 @@ var TelegramAuthRepository = /** @class */ (function () {
                         })];
                     case 1:
                         _c.sent();
-                        return [4 /*yield*/, this.fetchSession()];
+                        return [4 /*yield*/, this.telegramClient.connect()];
                     case 2:
+                        _c.sent();
+                        return [4 /*yield*/, this.fetchSession()];
+                    case 3:
                         _c.sent();
                         console.log('You should now be connected.');
                         console.log(this.telegramClient.session.save()); // Save this string to avoid logging in again
                         return [2 /*return*/];
                 }
+            });
+        });
+    };
+    TelegramAuthRepository.prototype.getMyUser = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.telegramClient.getMe()];
             });
         });
     };

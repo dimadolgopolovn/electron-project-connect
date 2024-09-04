@@ -22,7 +22,10 @@ export interface GetDialogsRequest {
   archived?: boolean;
 }
 
+export type MessengerId = string;
+
 export interface DialogEntity {
+  messengerId: MessengerId;
   pinned: boolean;
   archived: boolean;
   message?: LastMessageEntity;

@@ -1,3 +1,4 @@
+import { MessengerId } from './dialog_list_entities';
 export type UnifiedObjectId = string;
 export type TypeMessageMediaEntity = MessageMediaPhotoEntity | MessageMediaUnsupportedEntity;
 export interface MessageMediaPhotoEntity {
@@ -7,6 +8,7 @@ export interface MessageMediaPhotoEntity {
 export interface MessageMediaUnsupportedEntity {
 }
 export interface LastMessageEntity {
+    messengerId: MessengerId;
     /**
      * Whether the message is outgoing (i.e. you sent it from
      * another session) or incoming (i.e. someone else sent it).

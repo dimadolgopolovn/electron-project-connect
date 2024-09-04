@@ -56,28 +56,27 @@ var chat_module_1 = require("chat-module");
 var TelegramDialogsRepository = /** @class */ (function (_super) {
     __extends(TelegramDialogsRepository, _super);
     function TelegramDialogsRepository(_a) {
-        var telegramClient = _a.telegramClient;
+        var telegramClient = _a.telegramClient, messengerId = _a.messengerId;
         var _this = _super.call(this) || this;
         _this.telegramClient = telegramClient;
+        _this.messengerId = messengerId;
         return _this;
     }
     TelegramDialogsRepository.prototype.getDialogsList = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             var telegramDialogs;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.telegramClient.connect()];
+                    case 0: return [4 /*yield*/, this.telegramClient.getDialogs({
+                            limit: request.limit,
+                            offsetDate: request.offsetDate,
+                            offsetId: request.offsetId,
+                            ignorePinned: request.ignorePinned,
+                            folder: request.folder,
+                            archived: request.archived,
+                        })];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.telegramClient.getDialogs({
-                                limit: request.limit,
-                                offsetDate: request.offsetDate,
-                                offsetId: request.offsetId,
-                                ignorePinned: request.ignorePinned,
-                                folder: request.folder,
-                                archived: request.archived,
-                            })];
-                    case 2:
                         telegramDialogs = _a.sent();
                         return [2 /*return*/, telegramDialogs.map(function (dialog) {
                                 var _a, _b, _c, _d, _e, _f;
@@ -99,9 +98,11 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
                                     lastMessageToId = (_e = (_d = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.toId) === null || _d === void 0 ? void 0 : _d.userId) === null || _e === void 0 ? void 0 : _e.toString();
                                 }
                                 return {
+                                    messengerId: _this.messengerId,
                                     pinned: dialog.pinned,
                                     archived: dialog.archived,
                                     message: {
+                                        messengerId: _this.messengerId,
                                         id: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.id,
                                         out: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.out,
                                         date: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.date,

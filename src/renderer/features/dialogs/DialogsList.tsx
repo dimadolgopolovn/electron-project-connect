@@ -1,14 +1,12 @@
 import styled from '@emotion/styled';
-import { DialogEntity } from 'chat-module';
-import { DialogAggregator } from 'chat-module/dist/aggregators/dialogs_aggregator';
-import { ChatModule } from 'chat-module/dist/chat_module';
+import { ChatModule, DialogAggregator, DialogEntity } from 'chat-module';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { TelegramAuthRepository } from 'telegram-chat-module';
-import { TelegramChatModule } from 'telegram-chat-module/dist/telefram-chat-module';
+import { TelegramChatModule } from 'telegram-chat-module';
 import { StoreSession } from 'telegram/sessions';
 import { TelegramAuthState } from '../auth/enums/telegram_auth_state';
 import { telegramAuthState, TelegramLogin } from '../auth/TelegramLogin';
+import { ChatView } from '../chat/ChatView';
 import { DialogTile } from './widgets/DialogTile'; // Assuming DialogTile is your chat item component
 
 // Left column containing the list of chats
@@ -39,12 +37,11 @@ const MainChatContainer = styled.div((props) => ({
   height: '100vh', // Full viewport height for the chat window
 }));
 
+const storeSession = new StoreSession('telegram_session');
 export const telegramChatModule = new TelegramChatModule({
-  storeSession: new StoreSession('telegram_session_kdokdkdk'),
+  storeSession: storeSession,
   apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
   apiHash: process.env.TELEGRAM_API_HASH ?? '',
-  authRepositoryBuilder: (client) =>
-    new TelegramAuthRepository({ telegramClient: client }),
 });
 export const modules: ChatModule[] = [telegramChatModule];
 const dialogsAggregator = new DialogAggregator(modules);
@@ -101,11 +98,10 @@ export const DialogsList: React.FC = () => {
       {/* Right side: Selected chat content */}
       <ChatContentArea>
         {selectedChatIndex >= 0 ? (
-          <>
-            <h1>Chat {selectedChatIndex + 1}</h1>
-            {/* Display messages here */}
-            <p>This is where the chat content will be displayed.</p>
-          </>
+          <ChatView
+            modules={modules}
+            dialogEntity={dialogsList[selectedChatIndex]}
+          />
         ) : (
           // <p>Please select a chat to view the content.</p>
           <TelegramLogin authRepository={telegramChatModule.authRepository} />

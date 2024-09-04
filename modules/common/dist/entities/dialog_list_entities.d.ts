@@ -20,7 +20,9 @@ export interface GetDialogsRequest {
     /**  Alias for folder. If unspecified, all will be returned, false implies `folder:0` and True implies `folder:1`.*/
     archived?: boolean;
 }
+export type MessengerId = string;
 export interface DialogEntity {
+    messengerId: MessengerId;
     pinned: boolean;
     archived: boolean;
     message?: LastMessageEntity;

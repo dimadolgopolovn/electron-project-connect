@@ -1,4 +1,4 @@
-import { TelegramClient } from 'telegram';
+import { Api, TelegramClient } from 'telegram';
 export declare class TelegramAuthRepository {
     constructor({ telegramClient }: {
         telegramClient: TelegramClient;
@@ -12,5 +12,6 @@ export declare class TelegramAuthRepository {
         passwordProvider: () => Promise<string>;
         codeProvider: () => Promise<string>;
     }): Promise<void>;
+    getMyUser(): Promise<Api.User>;
     logout(): Promise<void>;
 }

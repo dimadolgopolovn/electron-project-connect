@@ -1,6 +1,7 @@
 import { DialogsRepository } from './repositories/dialogs_repository';
 
 export abstract class ChatModule {
+  abstract messengerId: string;
   abstract enabled: boolean;
   abstract dialogsRepository: DialogsRepository;
 

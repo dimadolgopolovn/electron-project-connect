@@ -54,20 +54,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TelegramChatModule = void 0;
 var chat_module_1 = require("chat-module");
 var telegram_1 = require("telegram");
+var telegram_auth_repository_1 = require("./repositories/telegram_auth_repository");
+var telegram_chat_repository_1 = require("./repositories/telegram_chat_repository");
 var telegram_dialogs_repository_1 = require("./repositories/telegram_dialogs_repository");
 var TelegramChatModule = /** @class */ (function (_super) {
     __extends(TelegramChatModule, _super);
     function TelegramChatModule(_a) {
-        var storeSession = _a.storeSession, apiId = _a.apiId, apiHash = _a.apiHash, authRepositoryBuilder = _a.authRepositoryBuilder;
+        var storeSession = _a.storeSession, apiId = _a.apiId, apiHash = _a.apiHash;
         var _this = _super.call(this) || this;
+        _this.messengerId = 'telegram';
         _this.client = new telegram_1.TelegramClient(storeSession, apiId, apiHash, {
             connectionRetries: 5,
             useWSS: true,
         });
         _this.dialogsRepository = new telegram_dialogs_repository_1.TelegramDialogsRepository({
             telegramClient: _this.client,
+            messengerId: _this.messengerId,
         });
-        _this.authRepository = authRepositoryBuilder(_this.client);
+        _this.authRepository = new telegram_auth_repository_1.TelegramAuthRepository({
+            telegramClient: _this.client,
+        });
+        _this.chatRepository = new telegram_chat_repository_1.TelegramChatRepository({
+            telegramClient: _this.client,
+        });
         return _this;
     }
     Object.defineProperty(TelegramChatModule.prototype, "enabled", {
@@ -79,6 +88,7 @@ var TelegramChatModule = /** @class */ (function (_super) {
     });
     TelegramChatModule.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var myUser;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.client.connect()];
@@ -87,6 +97,10 @@ var TelegramChatModule = /** @class */ (function (_super) {
                         return [4 /*yield*/, this.authRepository.init()];
                     case 2:
                         _a.sent();
+                        return [4 /*yield*/, this.authRepository.getMyUser()];
+                    case 3:
+                        myUser = _a.sent();
+                        this.chatRepository.setMyUserId(myUser.id);
                         return [2 /*return*/];
                 }
             });

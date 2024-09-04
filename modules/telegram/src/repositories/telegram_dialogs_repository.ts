@@ -8,15 +8,22 @@ import {
 import { TelegramClient } from 'telegram';
 
 export class TelegramDialogsRepository extends DialogsRepository {
-  constructor({ telegramClient }: { telegramClient: TelegramClient }) {
+  constructor({
+    telegramClient,
+    messengerId,
+  }: {
+    telegramClient: TelegramClient;
+    messengerId: string;
+  }) {
     super();
     this.telegramClient = telegramClient;
+    this.messengerId = messengerId;
   }
 
   telegramClient: TelegramClient;
+  messengerId: string;
 
   async getDialogsList(request: GetDialogsRequest): Promise<DialogEntity[]> {
-    await this.telegramClient.connect();
     const telegramDialogs = await this.telegramClient.getDialogs({
       limit: request.limit,
       offsetDate: request.offsetDate,
@@ -45,9 +52,11 @@ export class TelegramDialogsRepository extends DialogsRepository {
       }
 
       return <DialogEntity>{
+        messengerId: this.messengerId,
         pinned: dialog.pinned,
         archived: dialog.archived,
         message: {
+          messengerId: this.messengerId,
           id: lastMessage?.id,
           out: lastMessage?.out,
           date: lastMessage?.date,
