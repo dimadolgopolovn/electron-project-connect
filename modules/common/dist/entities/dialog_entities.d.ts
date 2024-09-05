@@ -19,7 +19,7 @@ export interface LastMessageEntity {
      * {@link Api.PeerUser}, {@link Api.PeerChat} or {@link Api.PeerChannel}.
      * This value will be `undefined` for anonymous messages.
      */
-    fromId?: UnifiedObjectId;
+    dialogId?: UnifiedObjectId;
     /**
      * The timestamp indicating when this message was sent.
      * This will always be present except for empty messages.
