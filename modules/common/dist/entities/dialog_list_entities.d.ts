@@ -23,6 +23,7 @@ export interface GetDialogsRequest {
 export type MessengerId = string;
 export interface DialogEntity {
     messengerId: MessengerId;
+    photoBase64: Promise<string | undefined>;
     pinned: boolean;
     archived: boolean;
     message?: LastMessageEntity;

@@ -39,9 +39,6 @@ export const modules: ChatModule[] = [telegramChatModule];
 const dialogsAggregator = new DialogAggregator(modules);
 
 async function loadDialogs(): Promise<DialogEntity[]> {
-  for (const module of modules) {
-    console.log(module);
-  }
   return dialogsAggregator.getDialogsList({
     limit: 10,
     ignorePinned: false,
@@ -63,14 +60,13 @@ export const DialogsList: React.FC = () => {
         setDialogsList(dialogs);
         for (const module of modules) {
           module.dialogsRepository.addNewMessageHandler((message) => {
-            console.log('New message:', message);
             const dialogIndex = dialogs.findIndex(
               (dialog) => dialog.id === message.dialogId,
             );
-            console.log('Dialog index:', dialogIndex);
             if (dialogIndex >= 0) {
               const newDialogs = [...dialogs];
               newDialogs[dialogIndex].message = message;
+              // TODO: check if the message is unread
               newDialogs[dialogIndex].unreadCount++;
               setDialogsList(newDialogs);
             }
@@ -85,6 +81,7 @@ export const DialogsList: React.FC = () => {
       {/* Left column: Chat list */}
       <ChatListColumn>
         <DialogTile
+          photoBase64={Promise.resolve('')}
           chatId="settings"
           title="Settings"
           subtitle="Change your settings here"
@@ -94,6 +91,8 @@ export const DialogsList: React.FC = () => {
         />
         {dialogsList.map((dialog, index) => (
           <DialogTile
+            key={dialog.id}
+            photoBase64={dialog.photoBase64}
             chatId={dialog.id + ''}
             title={dialog.name ?? dialog.title ?? 'Unknown'}
             subtitle={dialog.message?.messageText ?? ''}

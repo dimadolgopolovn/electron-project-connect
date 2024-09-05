@@ -33,7 +33,9 @@ export class TelegramDialogsRepository extends DialogsRepository {
       folder: request.folder,
       archived: request.archived,
     });
-    return telegramDialogs.map<DialogEntity>(toDialogEntity);
+    return telegramDialogs.map<DialogEntity>((dialog) =>
+      toDialogEntity(this.telegramClient, dialog),
+    );
   }
 
   messageCallbackMap: Map<

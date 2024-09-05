@@ -68,6 +68,7 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
     TelegramDialogsRepository.prototype.getDialogsList = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             var telegramDialogs;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.telegramClient.getDialogs({
@@ -80,7 +81,9 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
                         })];
                     case 1:
                         telegramDialogs = _a.sent();
-                        return [2 /*return*/, telegramDialogs.map(converters_1.toDialogEntity)];
+                        return [2 /*return*/, telegramDialogs.map(function (dialog) {
+                                return (0, converters_1.toDialogEntity)(_this.telegramClient, dialog);
+                            })];
                 }
             });
         });

@@ -2,9 +2,9 @@ import {
   DialogEntity,
   LastMessageEntity,
   TypeMessageMediaEntity,
-  UnifiedObjectId,
 } from 'chat-module';
-import { Api } from 'telegram';
+import { Api, TelegramClient } from 'telegram';
+import { Entity } from 'telegram/define';
 import { Dialog } from 'telegram/tl/custom/dialog';
 
 export const toLastMessageEntity = (
@@ -19,18 +19,7 @@ export const toLastMessageEntity = (
       url: telegramMedia.photo?.id, // TODO (gicha): implement this with the correct value
     };
   }
-  let dialogId: UnifiedObjectId | undefined;
-  switch (lastMessage.peerId.className) {
-    case 'PeerUser':
-      dialogId = lastMessage.peerId.userId.toString();
-      break;
-    case 'PeerChat':
-      dialogId = lastMessage.peerId.chatId.toString();
-      break;
-    case 'PeerChannel':
-      dialogId = lastMessage.peerId.channelId.toString();
-      break;
-  }
+  let dialogId = lastMessage.chatId?.toString();
   return <LastMessageEntity>{
     messengerId: messengerId,
     id: lastMessage?.id.toString(),
@@ -43,8 +32,23 @@ export const toLastMessageEntity = (
   };
 };
 
-export const toDialogEntity = (dialog: Dialog): DialogEntity => {
+const dialogPhotoPromise = async (
+  client: TelegramClient,
+  entity: Entity | undefined,
+): Promise<string | undefined> => {
+  const photoFile = await client.downloadProfilePhoto(entity!);
+  if (typeof photoFile === 'string') return photoFile;
+  return photoFile?.toString('base64');
+};
+
+export const toDialogEntity = (
+  client: TelegramClient,
+  dialog: Dialog,
+): DialogEntity => {
   const lastMessage = dialog.message;
+  console.log('dialog', dialog);
+  let chatPhoto = dialogPhotoPromise(client, dialog.entity);
+  console.log('chatPhoto', chatPhoto);
   return <DialogEntity>{
     messengerId: 'telegram',
     pinned: dialog.pinned,
@@ -60,5 +64,6 @@ export const toDialogEntity = (dialog: Dialog): DialogEntity => {
     isUser: dialog.isUser,
     isGroup: dialog.isGroup,
     isChannel: dialog.isChannel,
+    photoBase64: chatPhoto,
   };
 };

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import React from 'react';
 
 interface DialogTileProps {
   chatId: string;
@@ -24,13 +25,68 @@ const DialogTileContainer = styled.div<{ isSelected: boolean }>((props) => ({
 }));
 
 // Avatar or icon placeholder
-const Avatar = styled.div(() => ({
-  width: '40px',
-  height: '40px',
-  borderRadius: '50%',
-  backgroundColor: '#ccc', // Placeholder color
-  marginRight: '10px',
-}));
+const StyledAvatar = styled.div<{ photoBase64: string | undefined }>`
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ccc; /* Placeholder color */
+  margin-right: 10px;
+  background-image: ${(props) =>
+    props.photoBase64
+      ? `url(data:image/jpeg;base64,${props.photoBase64})`
+      : 'none'};
+  background-size: cover;
+`;
+
+const Loader = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+`;
+
+const AvatarContainer = styled.div`
+  position: relative;
+`;
+
+export const AvatarComponent: React.FC<{
+  photoBase64: Promise<string | undefined>;
+}> = ({ photoBase64 }) => {
+  const [resolvedPhoto, setResolvedPhoto] = React.useState<string | undefined>(
+    undefined,
+  );
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    photoBase64.then((result) => {
+      setResolvedPhoto(result); // Store the resolved base64 image
+      setIsLoading(false);
+    });
+  }, [photoBase64]);
+
+  return (
+    <AvatarContainer>
+      <StyledAvatar photoBase64={resolvedPhoto} />
+      {isLoading && <Loader />}
+    </AvatarContainer>
+  );
+};
 
 // Container for text (title and subtitle)
 const TextContainer = styled.div((props) => ({
@@ -66,17 +122,19 @@ const UnreadCount = styled.div((props) => ({
   textAlign: 'center',
 }));
 
-export const DialogTile: React.FC<DialogTileProps> = ({
-  chatId,
-  title,
-  subtitle,
-  unreadCount,
-  isSelected,
-  onSelect,
-}) => {
+export const DialogTile: React.FC<
+  DialogTileProps & {
+    photoBase64: Promise<string | undefined>;
+    title: string;
+    subtitle: string;
+    unreadCount: number;
+    isSelected: boolean;
+    onSelect: () => void;
+  }
+> = ({ photoBase64, title, subtitle, unreadCount, isSelected, onSelect }) => {
   return (
     <DialogTileContainer isSelected={isSelected} onClick={onSelect}>
-      <Avatar />
+      {<AvatarComponent photoBase64={photoBase64} />}
       <TextContainer>
         <Title>{title}</Title>
         <Subtitle>{subtitle}</Subtitle>

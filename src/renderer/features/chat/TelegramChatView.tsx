@@ -1,20 +1,13 @@
 import styled from '@emotion/styled';
 import { DialogEntity } from 'chat-module';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Api } from 'telegram';
 import {
   TelegramChatModule,
   TelegramChatRepository,
 } from 'telegram-chat-module';
-
-const ChatContainer = styled.div`
-  height: 900px;
-  overflow-y: auto; // Ensure this is correct
-  width: 100%;
-  background-color: #1a222c;
-  padding: 20px;
-`;
+import { NewMessage, NewMessageEvent } from 'telegram/events';
 
 const MessageContainer = styled.div`
   display: flex;
@@ -30,6 +23,8 @@ const OtherMessage = styled.div`
   max-width: 60%;
   word-wrap: break-word;
   margin-bottom: 8px;
+  display: flex;
+  flex-direction: column; /* Stacks photo and text vertically */
 `;
 
 const UserMessage = styled.div`
@@ -40,6 +35,8 @@ const UserMessage = styled.div`
   max-width: 60%;
   word-wrap: break-word;
   margin-bottom: 8px;
+  display: flex;
+  flex-direction: column; /* Stacks photo and text vertically */
 `;
 
 type TimeStampProps = {
@@ -107,13 +104,50 @@ const fetchMessages = async (
   return messages;
 };
 
+const downloadPhoto = async (
+  message: Api.Message,
+): Promise<undefined | string> => {
+  const media = await message.downloadMedia();
+  if (typeof media === 'string') return media;
+  return media?.toString('base64');
+};
+
+const PhotoMessage: React.FC<{ message: Api.Message }> = ({ message }) => {
+  const [photo, setPhoto] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPhoto = async () => {
+      const photoBase64 = await downloadPhoto(message);
+      if (photoBase64) {
+        setPhoto(photoBase64);
+      }
+      setIsLoading(false);
+    };
+    loadPhoto();
+  }, [message]);
+
+  return (
+    <>
+      {isLoading ? (
+        <div>Loading photo...</div> // Loader for photo
+      ) : (
+        <img
+          src={`data:image/jpeg;base64,${photo}`}
+          alt="Message media"
+          style={{ width: '300px', height: '200px', marginBottom: '10px' }}
+        />
+      )}
+    </>
+  );
+};
+
 export const TelegramChatView: React.FC<{
   chatModule: TelegramChatModule;
   dialogEntity: DialogEntity;
 }> = ({ chatModule, dialogEntity }) => {
   const [messages, setMessages] = useState<Api.Message[]>([]);
   const [hasMore, setHasMore] = useState(true);
-
   const [inputValue, setInputValue] = useState('');
   const getMessages = async (lastMessageId: number | undefined) => {
     try {
@@ -125,16 +159,32 @@ export const TelegramChatView: React.FC<{
       if (fetchedMessages.length === 0) {
         setHasMore(false);
       }
-      setMessages([...messages, ...fetchedMessages]);
+      setMessages((messages) => [...messages, ...fetchedMessages]);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
   };
+  const onNewMessage = useCallback(
+    (messageEvent: NewMessageEvent) => {
+      const message = messageEvent.message;
+      const dialogId = message.chatId?.toString();
+      if (dialogId === dialogEntity.id) {
+        setMessages((messages) => [...messages, message]);
+      }
+    },
+    [messages, dialogEntity.id],
+  );
+
   useEffect(() => {
     setMessages([]);
     setHasMore(true);
     getMessages(undefined);
+    // chatModule.client.removeEventHandler(onNewMessage, new NewMessage({})); //TODO: connect logout func to removeEventHandler
   }, [dialogEntity.id]);
+
+  useEffect(() => {
+    chatModule.client.addEventHandler(onNewMessage, new NewMessage({}));
+  }, []);
 
   const handleSendMessage = () => {};
   return (
@@ -181,9 +231,15 @@ export const TelegramChatView: React.FC<{
           {messages.map((msg, index) => (
             <MessageContainer key={index}>
               {chatModule.chatRepository.isMyMessage(msg) ? (
-                <UserMessage>{msg.text}</UserMessage>
+                <UserMessage>
+                  {msg.media && <PhotoMessage message={msg} />}
+                  {msg.text}
+                </UserMessage>
               ) : (
-                <OtherMessage>{msg.text}</OtherMessage>
+                <OtherMessage>
+                  {msg.media && <PhotoMessage message={msg} />}
+                  {msg.text}
+                </OtherMessage>
               )}
               <TimeStamp isUser={chatModule.chatRepository.isMyMessage(msg)}>
                 {formatTime(msg.date)}
