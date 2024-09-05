@@ -1,5 +1,6 @@
 import { DialogEntity, DialogsRepository, GetDialogsRequest, LastMessageEntity } from 'chat-module';
 import { TelegramClient } from 'telegram';
+import { NewMessageEvent } from 'telegram/events';
 export declare class TelegramDialogsRepository extends DialogsRepository {
     constructor({ telegramClient, messengerId, }: {
         telegramClient: TelegramClient;
@@ -8,5 +9,7 @@ export declare class TelegramDialogsRepository extends DialogsRepository {
     telegramClient: TelegramClient;
     messengerId: string;
     getDialogsList(request: GetDialogsRequest): Promise<DialogEntity[]>;
-    onMessageReceived(newMessage: LastMessageEntity): void;
+    messageCallbackMap: Map<(event: LastMessageEntity) => void, (event: NewMessageEvent) => void>;
+    addNewMessageHandler(callback: (event: LastMessageEntity) => void): void;
+    removeNewMessageHandler(callback: (event: LastMessageEntity) => void): void;
 }

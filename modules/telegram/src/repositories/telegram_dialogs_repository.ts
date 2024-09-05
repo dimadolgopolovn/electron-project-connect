@@ -3,9 +3,10 @@ import {
   DialogsRepository,
   GetDialogsRequest,
   LastMessageEntity,
-  TypeMessageMediaEntity,
 } from 'chat-module';
-import { TelegramClient } from 'telegram';
+import { Api, TelegramClient } from 'telegram';
+import { NewMessage, NewMessageEvent } from 'telegram/events';
+import { toDialogEntity, toLastMessageEntity } from '../utils/converters';
 
 export class TelegramDialogsRepository extends DialogsRepository {
   constructor({
@@ -32,62 +33,30 @@ export class TelegramDialogsRepository extends DialogsRepository {
       folder: request.folder,
       archived: request.archived,
     });
-    return telegramDialogs.map<DialogEntity>((dialog) => {
-      const lastMessage = dialog.message;
-      let telegramMedia = lastMessage?.media;
-      let lastMessageMedia: TypeMessageMediaEntity | undefined;
-      if (telegramMedia && telegramMedia.className === 'MessageMediaPhoto') {
-        lastMessageMedia = {
-          spoiler: telegramMedia.spoiler,
-          url: telegramMedia.photo?.id, // TODO (gicha): implement this with the correct value
-        };
-      }
-      let lastMessageFromId: string | undefined;
-      let lastMessageToId: string | undefined;
-      if (lastMessage?.fromId && lastMessage.fromId.className === 'PeerUser') {
-        lastMessageFromId = lastMessage?.fromId?.userId?.toString();
-      }
-      if (lastMessage?.toId && lastMessage.toId.className === 'PeerUser') {
-        lastMessageToId = lastMessage?.toId?.userId?.toString();
-      }
-
-      return <DialogEntity>{
-        messengerId: this.messengerId,
-        pinned: dialog.pinned,
-        archived: dialog.archived,
-        message: {
-          messengerId: this.messengerId,
-          id: lastMessage?.id,
-          out: lastMessage?.out,
-          date: lastMessage?.date,
-          fromId: lastMessageFromId,
-          toId: lastMessageToId,
-          messageText: lastMessage?.message,
-          media: lastMessageMedia,
-          replyTo: lastMessage?.replyTo,
-          action: lastMessage?.action,
-          entities: lastMessage?.entities,
-          views: lastMessage?.views,
-          editDate: lastMessage?.editDate,
-          groupedId: lastMessage?.groupedId,
-          postAuthor: lastMessage?.postAuthor,
-          ttlPeriod: lastMessage?.ttlPeriod,
-        },
-        date: dialog.date,
-        id: dialog?.id?.toString(),
-        name: dialog?.name,
-        title: dialog?.title,
-        unreadCount: dialog.unreadCount,
-        unreadMentionsCount: dialog.unreadMentionsCount,
-        isUser: dialog.isUser,
-        isGroup: dialog.isGroup,
-        isChannel: dialog.isChannel,
-      };
-    });
+    return telegramDialogs.map<DialogEntity>(toDialogEntity);
   }
 
-  onMessageReceived(newMessage: LastMessageEntity): void {
-    // TODO: Implement this method
-    throw new Error('Method not implemented.');
+  messageCallbackMap: Map<
+    (event: LastMessageEntity) => void,
+    (event: NewMessageEvent) => void
+  > = new Map();
+
+  addNewMessageHandler(callback: (event: LastMessageEntity) => void): void {
+    const tgCallback = (event: NewMessageEvent) => {
+      const messageData = event.message;
+      if (messageData === undefined) return;
+      const message = messageData as Api.Message;
+      callback(toLastMessageEntity(message));
+    };
+    this.messageCallbackMap.set(callback, tgCallback);
+    this.telegramClient.addEventHandler(tgCallback, new NewMessage({}));
+  }
+
+  removeNewMessageHandler(callback: (event: LastMessageEntity) => void): void {
+    const tgCallback = this.messageCallbackMap.get(callback);
+    if (tgCallback) {
+      this.messageCallbackMap.delete(callback);
+      this.telegramClient.removeEventHandler(tgCallback, new NewMessage({}));
+    }
   }
 }

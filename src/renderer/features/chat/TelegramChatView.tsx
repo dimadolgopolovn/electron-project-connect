@@ -9,9 +9,7 @@ import {
 } from 'telegram-chat-module';
 
 const ChatContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  height: 900px;
   overflow-y: auto; // Ensure this is correct
   width: 100%;
   background-color: #1a222c;
@@ -103,7 +101,7 @@ const fetchMessages = async (
   newerThanId?: number | undefined,
 ): Promise<Api.Message[]> => {
   const messages = await chatRepository.getMessages(chatId, {
-    limit: 10,
+    limit: 15,
     maxId: newerThanId,
   });
   return messages;
@@ -141,8 +139,16 @@ export const TelegramChatView: React.FC<{
   const handleSendMessage = () => {};
   return (
     <div>
-      {/* <ChatContainer> */}
-      <div id="scrollableDiv" style={{ height: 900, overflow: 'auto' }}>
+      <div
+        id="scrollableDiv"
+        style={{
+          height: '100%',
+          overflow: 'auto',
+          width: '100%',
+          backgroundColor: '#1a222c',
+          padding: '20px',
+        }}
+      >
         <InfiniteScroll
           dataLength={messages.length}
           next={() =>
@@ -186,7 +192,6 @@ export const TelegramChatView: React.FC<{
           ))}
         </InfiniteScroll>
       </div>
-      {/* </ChatContainer> */}
 
       <InputContainer>
         <Input

@@ -13,20 +13,12 @@ import { DialogTile } from './widgets/DialogTile'; // Assuming DialogTile is you
 const ChatListColumn = styled.div((props) => ({
   display: 'flex',
   flexDirection: 'column',
-  width: '300px', // Adjust the width as needed for the chat list
+  minWidth: '300px',
+  width: '300px',
   borderRight: '1px solid #ccc',
   padding: '10px',
   overflowY: 'auto',
-  backgroundColor: '#012651', // Light background for chat list
-}));
-
-// Right side for displaying the selected chat content
-const ChatContentArea = styled.div((props) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  padding: '20px',
-  overflowY: 'auto',
+  backgroundColor: '#1a222c', // Light background for chat list
 }));
 
 // Main container holding both columns
@@ -65,9 +57,27 @@ export const DialogsList: React.FC = () => {
   useEffect(() => {
     // TODO: modify auth logic here
     if (authState === TelegramAuthState.HAS_SESSION) {
-      Promise.all(modules.map((module) => module.init())).then(() =>
-        loadDialogs().then(setDialogsList),
-      );
+      async function init() {
+        await Promise.all(modules.map((module) => module.init()));
+        const dialogs = await loadDialogs();
+        setDialogsList(dialogs);
+        for (const module of modules) {
+          module.dialogsRepository.addNewMessageHandler((message) => {
+            console.log('New message:', message);
+            const dialogIndex = dialogs.findIndex(
+              (dialog) => dialog.id === message.dialogId,
+            );
+            console.log('Dialog index:', dialogIndex);
+            if (dialogIndex >= 0) {
+              const newDialogs = [...dialogs];
+              newDialogs[dialogIndex].message = message;
+              newDialogs[dialogIndex].unreadCount++;
+              setDialogsList(newDialogs);
+            }
+          });
+        }
+      }
+      init();
     }
   }, [authState]);
   return (
@@ -96,17 +106,16 @@ export const DialogsList: React.FC = () => {
       </ChatListColumn>
 
       {/* Right side: Selected chat content */}
-      <ChatContentArea>
-        {selectedChatIndex >= 0 ? (
-          <ChatView
-            modules={modules}
-            dialogEntity={dialogsList[selectedChatIndex]}
-          />
-        ) : (
-          // <p>Please select a chat to view the content.</p>
-          <TelegramLogin authRepository={telegramChatModule.authRepository} />
-        )}
-      </ChatContentArea>
+
+      {selectedChatIndex >= 0 ? (
+        <ChatView
+          modules={modules}
+          dialogEntity={dialogsList[selectedChatIndex]}
+        />
+      ) : (
+        // <p>Please select a chat to view the content.</p>
+        <TelegramLogin authRepository={telegramChatModule.authRepository} />
+      )}
     </MainChatContainer>
   );
 };

@@ -15,8 +15,8 @@ const DialogTileContainer = styled.div<{ isSelected: boolean }>((props) => ({
   flexDirection: 'row',
   alignItems: 'center',
   padding: '10px',
-  backgroundColor: props.isSelected ? '#e0e0e0' : '#fff', // Highlight selected chat
-  borderBottom: '1px solid #ccc',
+  backgroundColor: props.isSelected ? '#486993' : '#1a222c', // Highlight selected chat
+  borderBottom: '1px solid #252F3F',
   cursor: 'pointer',
   '&:hover': {
     backgroundColor: '#f0f0f0', // Light hover effect
@@ -41,9 +41,9 @@ const TextContainer = styled.div((props) => ({
 
 // Title of the chat
 const Title = styled.div(() => ({
-  fontWeight: 'bold',
+  fontWeight: 'semibold',
   fontSize: '16px',
-  color: '#333',
+  color: '#fff',
 }));
 
 // Subtitle or last message preview

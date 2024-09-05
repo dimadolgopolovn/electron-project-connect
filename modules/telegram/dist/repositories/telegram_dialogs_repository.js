@@ -53,11 +53,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TelegramDialogsRepository = void 0;
 var chat_module_1 = require("chat-module");
+var events_1 = require("telegram/events");
+var converters_1 = require("../utils/converters");
 var TelegramDialogsRepository = /** @class */ (function (_super) {
     __extends(TelegramDialogsRepository, _super);
     function TelegramDialogsRepository(_a) {
         var telegramClient = _a.telegramClient, messengerId = _a.messengerId;
         var _this = _super.call(this) || this;
+        _this.messageCallbackMap = new Map();
         _this.telegramClient = telegramClient;
         _this.messengerId = messengerId;
         return _this;
@@ -65,7 +68,6 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
     TelegramDialogsRepository.prototype.getDialogsList = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             var telegramDialogs;
-            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.telegramClient.getDialogs({
@@ -78,65 +80,28 @@ var TelegramDialogsRepository = /** @class */ (function (_super) {
                         })];
                     case 1:
                         telegramDialogs = _a.sent();
-                        return [2 /*return*/, telegramDialogs.map(function (dialog) {
-                                var _a, _b, _c, _d, _e, _f;
-                                var lastMessage = dialog.message;
-                                var telegramMedia = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.media;
-                                var lastMessageMedia;
-                                if (telegramMedia && telegramMedia.className === 'MessageMediaPhoto') {
-                                    lastMessageMedia = {
-                                        spoiler: telegramMedia.spoiler,
-                                        url: (_a = telegramMedia.photo) === null || _a === void 0 ? void 0 : _a.id, // TODO (gicha): implement this with the correct value
-                                    };
-                                }
-                                var lastMessageFromId;
-                                var lastMessageToId;
-                                if ((lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.fromId) && lastMessage.fromId.className === 'PeerUser') {
-                                    lastMessageFromId = (_c = (_b = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.fromId) === null || _b === void 0 ? void 0 : _b.userId) === null || _c === void 0 ? void 0 : _c.toString();
-                                }
-                                if ((lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.toId) && lastMessage.toId.className === 'PeerUser') {
-                                    lastMessageToId = (_e = (_d = lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.toId) === null || _d === void 0 ? void 0 : _d.userId) === null || _e === void 0 ? void 0 : _e.toString();
-                                }
-                                return {
-                                    messengerId: _this.messengerId,
-                                    pinned: dialog.pinned,
-                                    archived: dialog.archived,
-                                    message: {
-                                        messengerId: _this.messengerId,
-                                        id: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.id,
-                                        out: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.out,
-                                        date: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.date,
-                                        fromId: lastMessageFromId,
-                                        toId: lastMessageToId,
-                                        messageText: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.message,
-                                        media: lastMessageMedia,
-                                        replyTo: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.replyTo,
-                                        action: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.action,
-                                        entities: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.entities,
-                                        views: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.views,
-                                        editDate: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.editDate,
-                                        groupedId: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.groupedId,
-                                        postAuthor: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.postAuthor,
-                                        ttlPeriod: lastMessage === null || lastMessage === void 0 ? void 0 : lastMessage.ttlPeriod,
-                                    },
-                                    date: dialog.date,
-                                    id: (_f = dialog === null || dialog === void 0 ? void 0 : dialog.id) === null || _f === void 0 ? void 0 : _f.toString(),
-                                    name: dialog === null || dialog === void 0 ? void 0 : dialog.name,
-                                    title: dialog === null || dialog === void 0 ? void 0 : dialog.title,
-                                    unreadCount: dialog.unreadCount,
-                                    unreadMentionsCount: dialog.unreadMentionsCount,
-                                    isUser: dialog.isUser,
-                                    isGroup: dialog.isGroup,
-                                    isChannel: dialog.isChannel,
-                                };
-                            })];
+                        return [2 /*return*/, telegramDialogs.map(converters_1.toDialogEntity)];
                 }
             });
         });
     };
-    TelegramDialogsRepository.prototype.onMessageReceived = function (newMessage) {
-        // TODO: Implement this method
-        throw new Error('Method not implemented.');
+    TelegramDialogsRepository.prototype.addNewMessageHandler = function (callback) {
+        var tgCallback = function (event) {
+            var messageData = event.message;
+            if (messageData === undefined)
+                return;
+            var message = messageData;
+            callback((0, converters_1.toLastMessageEntity)(message));
+        };
+        this.messageCallbackMap.set(callback, tgCallback);
+        this.telegramClient.addEventHandler(tgCallback, new events_1.NewMessage({}));
+    };
+    TelegramDialogsRepository.prototype.removeNewMessageHandler = function (callback) {
+        var tgCallback = this.messageCallbackMap.get(callback);
+        if (tgCallback) {
+            this.messageCallbackMap.delete(callback);
+            this.telegramClient.removeEventHandler(tgCallback, new events_1.NewMessage({}));
+        }
     };
     return TelegramDialogsRepository;
 }(chat_module_1.DialogsRepository));
