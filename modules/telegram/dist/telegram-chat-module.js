@@ -79,16 +79,8 @@ var TelegramChatModule = /** @class */ (function (_super) {
         });
         return _this;
     }
-    Object.defineProperty(TelegramChatModule.prototype, "enabled", {
-        get: function () {
-            return this.authRepository.hasSession;
-        },
-        enumerable: false,
-        configurable: true
-    });
     TelegramChatModule.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var myUser;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.client.connect()];
@@ -97,11 +89,38 @@ var TelegramChatModule = /** @class */ (function (_super) {
                         return [4 /*yield*/, this.authRepository.init()];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, this.authRepository.getMyUser()];
+                        return [4 /*yield*/, this.fetchMyUser()];
                     case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Object.defineProperty(TelegramChatModule.prototype, "onAuthComplete", {
+        get: function () {
+            return this.authRepository.ready;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    TelegramChatModule.prototype.fetchMyUser = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var myUser, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.authRepository.getMyUser()];
+                    case 1:
                         myUser = _a.sent();
                         this.chatRepository.setMyUserId(myUser.id);
-                        return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        console.log('Error fetching my user)');
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });

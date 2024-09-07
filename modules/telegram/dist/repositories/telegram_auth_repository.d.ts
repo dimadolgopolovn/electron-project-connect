@@ -1,9 +1,11 @@
+import { Completer } from 'chat-module';
 import { Api, TelegramClient } from 'telegram';
 export declare class TelegramAuthRepository {
     constructor({ telegramClient }: {
         telegramClient: TelegramClient;
     });
     telegramClient: TelegramClient;
+    ready: Completer<void>;
     get hasSession(): boolean;
     fetchSession(): Promise<void>;
     init(): Promise<void>;

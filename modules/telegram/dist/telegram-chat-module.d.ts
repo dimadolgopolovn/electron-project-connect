@@ -1,4 +1,4 @@
-import { ChatModule, DialogsRepository } from 'chat-module';
+import { ChatModule, Completer, DialogsRepository } from 'chat-module';
 import { TelegramClient } from 'telegram';
 import { StoreSession } from 'telegram/sessions';
 import { TelegramAuthRepository } from './repositories/telegram_auth_repository';
@@ -14,7 +14,8 @@ export declare class TelegramChatModule extends ChatModule {
     authRepository: TelegramAuthRepository;
     chatRepository: TelegramChatRepository;
     messengerId: string;
-    get enabled(): boolean;
     init(): Promise<void>;
+    get onAuthComplete(): Completer<void>;
+    fetchMyUser(): Promise<void>;
     checkSignedIn(): Promise<void>;
 }

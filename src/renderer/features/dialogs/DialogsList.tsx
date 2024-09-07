@@ -1,12 +1,9 @@
 import styled from '@emotion/styled';
 import { ChatModule, DialogAggregator, DialogEntity } from 'chat-module';
 import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { TelegramChatModule } from 'telegram-chat-module';
-import { StoreSession } from 'telegram/sessions';
-import { TelegramAuthState } from '../auth/enums/telegram_auth_state';
-import { telegramAuthState, TelegramLogin } from '../auth/TelegramLogin';
+import { WhatsappChatModule } from 'whatsapp-chat-module';
 import { ChatView } from '../chat/ChatView';
+import { SettingsView } from '../settings/SettingsView';
 import { DialogTile } from './widgets/DialogTile'; // Assuming DialogTile is your chat item component
 
 // Left column containing the list of chats
@@ -29,13 +26,16 @@ const MainChatContainer = styled.div((props) => ({
   height: '100vh', // Full viewport height for the chat window
 }));
 
-const storeSession = new StoreSession('telegram_session');
-export const telegramChatModule = new TelegramChatModule({
-  storeSession: storeSession,
-  apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
-  apiHash: process.env.TELEGRAM_API_HASH ?? '',
-});
-export const modules: ChatModule[] = [telegramChatModule];
+// export const telegramChatModule = new TelegramChatModule({
+//   storeSession: new StoreSession('telegram_session'),
+//   apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
+//   apiHash: process.env.TELEGRAM_API_HASH ?? '',
+// });
+export const whatsappChatModule = new WhatsappChatModule();
+export const modules: ChatModule[] = [
+  // telegramChatModule,
+  whatsappChatModule,
+];
 const dialogsAggregator = new DialogAggregator(modules);
 
 async function loadDialogs(): Promise<DialogEntity[]> {
@@ -49,36 +49,31 @@ async function loadDialogs(): Promise<DialogEntity[]> {
 export const DialogsList: React.FC = () => {
   const [dialogsList, setDialogsList] = useState<DialogEntity[]>([]);
   const [selectedChatIndex, setSelectedChatIndex] = useState(-1);
-  const [authState] = useRecoilState(telegramAuthState);
 
   useEffect(() => {
-    // TODO: modify auth logic here
-    if (authState === TelegramAuthState.HAS_SESSION) {
-      async function init() {
-        await Promise.all(modules.map((module) => module.init()));
+    for (const module of modules) {
+      module.onAuthComplete.promise.then(async () => {
+        await module.init();
         const dialogs = await loadDialogs();
         setDialogsList(dialogs);
-        for (const module of modules) {
-          module.dialogsRepository.addNewMessageHandler((message) => {
-            const dialogIndex = dialogs.findIndex(
-              (dialog) => dialog.id === message.dialogId,
-            );
-            if (dialogIndex >= 0) {
-              const newDialogs = [...dialogs];
-              newDialogs[dialogIndex].message = message;
-              // TODO: check if the message is unread
-              newDialogs[dialogIndex].unreadCount++;
-              setDialogsList(newDialogs);
-            }
-          });
-        }
-      }
-      init();
+        module.dialogsRepository.addNewMessageHandler((message) => {
+          const dialogIndex = dialogs.findIndex(
+            (dialog) => dialog.id === message.dialogId,
+          );
+          if (dialogIndex >= 0) {
+            const newDialogs = [...dialogs];
+            newDialogs[dialogIndex].message = message;
+            // TODO: check if the message is unread
+            newDialogs[dialogIndex].unreadCount++;
+            setDialogsList(newDialogs);
+          }
+        });
+      });
     }
-  }, [authState]);
+  }, []);
+
   return (
     <MainChatContainer>
-      {/* Left column: Chat list */}
       <ChatListColumn>
         <DialogTile
           photoBase64={Promise.resolve('')}
@@ -101,10 +96,7 @@ export const DialogsList: React.FC = () => {
             onSelect={() => setSelectedChatIndex(index)}
           />
         ))}
-        {/* Add more DialogTile components as needed */}
       </ChatListColumn>
-
-      {/* Right side: Selected chat content */}
 
       {selectedChatIndex >= 0 ? (
         <ChatView
@@ -112,8 +104,13 @@ export const DialogsList: React.FC = () => {
           dialogEntity={dialogsList[selectedChatIndex]}
         />
       ) : (
-        // <p>Please select a chat to view the content.</p>
-        <TelegramLogin authRepository={telegramChatModule.authRepository} />
+        <SettingsView
+          telegramModule={
+            undefined
+            // telegramChatModule
+          }
+          waModule={whatsappChatModule}
+        />
       )}
     </MainChatContainer>
   );

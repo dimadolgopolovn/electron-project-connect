@@ -18,4 +18,6 @@ __exportStar(require("./aggregators/dialogs_aggregator"), exports);
 __exportStar(require("./chat_module"), exports);
 __exportStar(require("./entities/dialog_entities"), exports);
 __exportStar(require("./entities/dialog_list_entities"), exports);
+__exportStar(require("./enums/auth_state"), exports);
 __exportStar(require("./repositories/dialogs_repository"), exports);
+__exportStar(require("./utils/completer"), exports);

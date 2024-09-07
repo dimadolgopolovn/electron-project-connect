@@ -37,9 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TelegramAuthRepository = void 0;
+var chat_module_1 = require("chat-module");
 var TelegramAuthRepository = /** @class */ (function () {
     function TelegramAuthRepository(_a) {
         var telegramClient = _a.telegramClient;
+        this.ready = new chat_module_1.Completer();
         this.telegramClient = telegramClient;
     }
     Object.defineProperty(TelegramAuthRepository.prototype, "hasSession", {
@@ -82,10 +84,10 @@ var TelegramAuthRepository = /** @class */ (function () {
         });
     };
     TelegramAuthRepository.prototype.signIn = function (_a) {
-        return __awaiter(this, arguments, void 0, function (_b) {
-            var phoneProvider = _b.phoneProvider, passwordProvider = _b.passwordProvider, codeProvider = _b.codeProvider;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+        var phoneProvider = _a.phoneProvider, passwordProvider = _a.passwordProvider, codeProvider = _a.codeProvider;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, this.telegramClient.start({
                             phoneNumber: phoneProvider,
                             password: passwordProvider,
@@ -96,13 +98,14 @@ var TelegramAuthRepository = /** @class */ (function () {
                             },
                         })];
                     case 1:
-                        _c.sent();
+                        _b.sent();
                         return [4 /*yield*/, this.telegramClient.connect()];
                     case 2:
-                        _c.sent();
+                        _b.sent();
                         return [4 /*yield*/, this.fetchSession()];
                     case 3:
-                        _c.sent();
+                        _b.sent();
+                        this.ready.complete();
                         console.log('You should now be connected.');
                         console.log(this.telegramClient.session.save()); // Save this string to avoid logging in again
                         return [2 /*return*/];

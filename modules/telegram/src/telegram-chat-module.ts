@@ -1,4 +1,4 @@
-import { ChatModule, DialogsRepository } from 'chat-module';
+import { ChatModule, Completer, DialogsRepository } from 'chat-module';
 import { TelegramClient } from 'telegram';
 import { StoreSession } from 'telegram/sessions';
 import { TelegramAuthRepository } from './repositories/telegram_auth_repository';
@@ -39,15 +39,23 @@ export class TelegramChatModule extends ChatModule {
 
   messengerId = 'telegram';
 
-  get enabled(): boolean {
-    return this.authRepository.hasSession;
-  }
-
   async init(): Promise<void> {
     await this.client.connect();
     await this.authRepository.init();
-    const myUser = await this.authRepository.getMyUser();
-    this.chatRepository.setMyUserId(myUser.id);
+    await this.fetchMyUser();
+  }
+
+  get onAuthComplete(): Completer<void> {
+    return this.authRepository.ready;
+  }
+
+  async fetchMyUser() {
+    try {
+      const myUser = await this.authRepository.getMyUser();
+      this.chatRepository.setMyUserId(myUser.id);
+    } catch (error) {
+      console.log('Error fetching my user)');
+    }
   }
 
   checkSignedIn(): Promise<void> {

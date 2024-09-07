@@ -47,7 +47,7 @@ var DialogAggregator = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Promise.all(this.modules
-                            .filter(function (module) { return module.enabled !== false; })
+                            .filter(function (module) { return module.onAuthComplete.completed !== false; })
                             .map(function (module) { return module.dialogsRepository.getDialogsList(request); }))];
                     case 1:
                         dialogs = _a.sent();

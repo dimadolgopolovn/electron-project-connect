@@ -101,6 +101,7 @@
     "@emotion/styled": "^11.13.0",
     "assert": "^2.1.0",
     "chat-module": "file:modules/common",
+    "child_process": "^1.0.2",
     "constants": "^0.0.2",
     "constants-browserify": "^1.0.0",
     "crypto": "^1.0.1",
@@ -119,13 +120,15 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-qr-code": "^2.0.15",
     "react-router-dom": "^6.16.0",
     "recoil": "^0.7.7",
     "stream": "^0.0.3",
     "stream-browserify": "^3.0.0",
     "telegram": "^2.24.10",
     "telegram-chat-module": "file:modules/telegram",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "whatsapp-chat-module": "file:modules/whatsapp"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
@@ -191,7 +194,8 @@
     "webpack-bundle-analyzer": "^4.9.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
-    "webpack-merge": "^5.10.0"
+    "webpack-merge": "^5.10.0",
+    "whatsapp-web.js": "^1.25.0"
   },
   "build": {
     "productName": "ElectronReact",

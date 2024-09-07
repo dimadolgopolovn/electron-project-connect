@@ -1,3 +1,4 @@
+import { Completer } from 'chat-module';
 import { Api, TelegramClient } from 'telegram';
 
 export class TelegramAuthRepository {
@@ -6,6 +7,8 @@ export class TelegramAuthRepository {
   }
 
   telegramClient: TelegramClient;
+
+  ready: Completer<void> = new Completer();
 
   get hasSession(): boolean {
     return this.telegramClient.session.authKey !== undefined;
@@ -42,6 +45,7 @@ export class TelegramAuthRepository {
     });
     await this.telegramClient.connect();
     await this.fetchSession();
+    this.ready.complete();
     console.log('You should now be connected.');
     console.log(this.telegramClient.session.save()); // Save this string to avoid logging in again
   }

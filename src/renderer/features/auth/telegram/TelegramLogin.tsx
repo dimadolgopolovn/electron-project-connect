@@ -1,13 +1,12 @@
+import { AuthState, Completer } from 'chat-module';
 import { useEffect, useState } from 'react';
 import { atom, useRecoilState } from 'recoil';
 import { TelegramAuthRepository } from 'telegram-chat-module';
-import { Completer } from '../../../utils/completer';
-import { TelegramAuthState } from './enums/telegram_auth_state';
 import { TelegramAuthStep } from './enums/telegram_auth_step';
 
 export const telegramAuthState = atom({
   key: 'telegramAuthState',
-  default: TelegramAuthState.INIT,
+  default: AuthState.INIT,
 });
 
 let phoneCompleter: Completer<string> = new Completer<string>();
@@ -27,9 +26,9 @@ export const TelegramLogin: React.FC<{
   const initTelegramCallback = async () => {
     await authRepository.init();
     if (authRepository.hasSession) {
-      setAuthState(TelegramAuthState.HAS_SESSION);
+      setAuthState(AuthState.HAS_SESSION);
     } else {
-      setAuthState(TelegramAuthState.SIGNING_IN);
+      setAuthState(AuthState.SIGNING_IN);
       await authRepository.signIn({
         phoneProvider: async () => {
           console.log('phoneProvider');
@@ -51,23 +50,23 @@ export const TelegramLogin: React.FC<{
         },
       });
       if (authRepository.hasSession) {
-        setAuthState(TelegramAuthState.HAS_SESSION);
+        setAuthState(AuthState.HAS_SESSION);
       }
     }
   };
 
   useEffect(() => {
-    if (authState === TelegramAuthState.INIT) {
+    if (authState === AuthState.INIT) {
       initTelegramCallback();
     }
   }, [authState]);
 
   return (
     <div>
-      {authState === TelegramAuthState.INIT && (
+      {authState === AuthState.INIT && (
         <button onClick={initTelegramCallback}>Init</button>
       )}
-      {authState === TelegramAuthState.SIGNING_IN && (
+      {authState === AuthState.SIGNING_IN && (
         <>
           {authStep === TelegramAuthStep.PHONE && (
             <>
@@ -138,13 +137,13 @@ export const TelegramLogin: React.FC<{
         </>
       )}
 
-      {authState === TelegramAuthState.HAS_SESSION && (
+      {authState === AuthState.HAS_SESSION && (
         <>
           <p>Has session</p>
           <button
             onClick={async () => {
               await authRepository.logout();
-              setAuthState(TelegramAuthState.INIT);
+              setAuthState(AuthState.INIT);
             }}
           >
             Logout
