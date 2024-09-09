@@ -39,7 +39,7 @@ const ChatView: React.FC = () => {
 
   return (
     <MessageList
-      referance={ref}
+      reference={ref}
       className="message-list"
       lockable={true}
       toBottomHeight={'100%'}
