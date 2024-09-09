@@ -5,6 +5,7 @@ function mapArrayWithDateToDateString(chats: MessageType[]): MessageType[]
 function mapArrayWithDateToDateString(
   chats: IChatItemProps[] | MessageType[],
 ): IChatItemProps[] | MessageType[] {
+  // TODO: Some people like Monday as the first day of the week
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   const today = new Date()
   const isToday = (someDate: Date) => {
