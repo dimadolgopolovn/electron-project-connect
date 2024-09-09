@@ -38,7 +38,10 @@ import styled from '@emotion/styled'
 import { mapArrayWithDateToDateString } from '../util'
 
 const StyledMessageList = styled(MessageList)`
+  margin-top: 18px;
   margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 18px;
 
   .flat-message {
     display: flex;
@@ -66,6 +69,8 @@ const StyledMessageList = styled(MessageList)`
     align-items: center;
     margin-bottom: 5px;
 
+    /* title slightly bigger than date and bold */
+    /* text slightly bigger than title */
     & .flat-message-title {
       font-size: 0.82em;
       color: #222;
@@ -79,12 +84,15 @@ const StyledMessageList = styled(MessageList)`
   }
 
   .flat-message-body {
-    background: #f1f1f1;
-    padding: 10px;
-    border-radius: 5px;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+
+    font-size: 0.98em;
 
     & .flat-message-text {
       white-space: pre-wrap;
+      color: #121314;
     }
   }
 `
