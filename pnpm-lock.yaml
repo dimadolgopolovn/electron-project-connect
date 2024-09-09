@@ -30,7 +30,7 @@ dependencies:
     version: 18.2.0
   react-chat-elements:
     specifier: github:dimadolgopolovn/react-chat-elements
-    version: github.com/dimadolgopolovn/react-chat-elements/8232de873cf7aa46ded643ca62b7d049da4ce421(react-dom@18.2.0)(react@18.2.0)
+    version: github.com/dimadolgopolovn/react-chat-elements/6980255e4b88045687ae07e46f57c927e65d2acf(react-dom@18.2.0)(react@18.2.0)
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
@@ -11583,9 +11583,9 @@ packages:
       readable-stream: 3.6.2
     dev: true
 
-  github.com/dimadolgopolovn/react-chat-elements/8232de873cf7aa46ded643ca62b7d049da4ce421(react-dom@18.2.0)(react@18.2.0):
-    resolution: {commit: 8232de873cf7aa46ded643ca62b7d049da4ce421, repo: git+ssh://git@github.com/dimadolgopolovn/react-chat-elements.git, type: git}
-    id: github.com/dimadolgopolovn/react-chat-elements/8232de873cf7aa46ded643ca62b7d049da4ce421
+  github.com/dimadolgopolovn/react-chat-elements/6980255e4b88045687ae07e46f57c927e65d2acf(react-dom@18.2.0)(react@18.2.0):
+    resolution: {commit: 6980255e4b88045687ae07e46f57c927e65d2acf, repo: git+ssh://git@github.com/dimadolgopolovn/react-chat-elements.git, type: git}
+    id: github.com/dimadolgopolovn/react-chat-elements/6980255e4b88045687ae07e46f57c927e65d2acf
     name: react-chat-elements
     version: 12.0.16
     prepare: true
