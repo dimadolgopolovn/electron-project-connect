@@ -1,9 +1,10 @@
 import React from 'react'
-import { ChatList } from 'react-chat-elements'
+import { ChatList, IChatItemProps } from 'react-chat-elements'
 import 'react-chat-elements/dist/main.css'
+import { mapArrayWithDateToDateString } from '../util'
 
 // Sample Data
-const chats = [
+const chats: IChatItemProps[] = [
   {
     id: 0,
     avatar: 'https://via.placeholder.com/50',
@@ -34,10 +35,12 @@ const chats = [
 ]
 
 const ListOfChats: React.FC = () => {
+  const chatsWithDateString = mapArrayWithDateToDateString(chats)
+
   return (
     <ChatList
       // className="chat-list"
-      dataSource={chats}
+      dataSource={chatsWithDateString}
     />
   )
 }

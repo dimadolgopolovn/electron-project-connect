@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import styled from '@emotion/styled'
 import ChatList from '../Components/ChatList'
 import MessageList from '../Components/MessageList'
