@@ -2,7 +2,7 @@ import { AuthState } from 'chat-module';
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { atom, useRecoilState } from 'recoil';
-import { WhatsappChatModule } from 'whatsapp-chat-module';
+import { WhatsappChatModule } from '../../../wa/whatsapp-chat-module';
 
 export const whatsappAuthState = atom({
   key: 'whatsappAuthState',
@@ -28,7 +28,13 @@ export const WhatsappLogin: React.FC<{
   return (
     <div>
       {authState === AuthState.INIT && (
-        <button onClick={module.signIn}>Login</button>
+        <button
+          onClick={async () => {
+            module.signIn();
+          }}
+        >
+          Login
+        </button>
       )}
       {authState === AuthState.SIGNING_IN && (
         <div

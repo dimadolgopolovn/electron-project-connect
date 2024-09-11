@@ -1,18 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Completer = void 0;
-var Completer = /** @class */ (function () {
-    function Completer() {
-        var _this = this;
-        this.complete = function () { };
-        this.completed = false;
-        this.promise = new Promise(function (resolve) {
-            _this.complete = resolve;
+class Completer {
+    promise;
+    complete = () => { };
+    completed = false;
+    constructor() {
+        this.promise = new Promise((resolve) => {
+            this.complete = resolve;
         });
-        this.promise.then(function () {
-            _this.completed = true;
+        this.promise.then(() => {
+            this.completed = true;
         });
     }
-    return Completer;
-}());
+}
 exports.Completer = Completer;

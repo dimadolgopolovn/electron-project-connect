@@ -4,7 +4,7 @@ import {
   GetDialogsRequest,
   LastMessageEntity,
 } from 'chat-module';
-import { Client } from 'whatsapp-web.js';
+import { Client } from 'whatsapp-web-electron.js';
 
 export class WhatsappDialogsRepository extends DialogsRepository {
   constructor({

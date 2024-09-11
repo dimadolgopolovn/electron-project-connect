@@ -1,7 +1,9 @@
 import styled from '@emotion/styled';
 import { ChatModule, DialogAggregator, DialogEntity } from 'chat-module';
 import { useEffect, useState } from 'react';
-import { WhatsappChatModule } from 'whatsapp-chat-module';
+// import { WhatsappChatModule } from 'whatsapp-chat-module';
+// import { WhatsappChatModule } from '../../wa/whatsapp-chat-module';
+import { WhatsappChatModule } from '../../wa/whatsapp-chat-module';
 import { ChatView } from '../chat/ChatView';
 import { SettingsView } from '../settings/SettingsView';
 import { DialogTile } from './widgets/DialogTile'; // Assuming DialogTile is your chat item component
@@ -34,7 +36,7 @@ const MainChatContainer = styled.div((props) => ({
 export const whatsappChatModule = new WhatsappChatModule();
 export const modules: ChatModule[] = [
   // telegramChatModule,
-  whatsappChatModule,
+  // whatsappChatModule,
 ];
 const dialogsAggregator = new DialogAggregator(modules);
 
@@ -105,10 +107,10 @@ export const DialogsList: React.FC = () => {
         />
       ) : (
         <SettingsView
-          telegramModule={
-            undefined
-            // telegramChatModule
-          }
+          // telegramModule={
+          //   undefined
+          //   // telegramChatModule
+          // }
           waModule={whatsappChatModule}
         />
       )}

@@ -4,7 +4,7 @@ export class Completer<T> {
   public completed: boolean = false;
 
   public constructor() {
-    this.promise = new Promise<T>((resolve) => {
+    this.promise = new Promise<T>((resolve: (value: T | PromiseLike<T>) => void) => {
       this.complete = resolve;
     });
     this.promise.then(() => {

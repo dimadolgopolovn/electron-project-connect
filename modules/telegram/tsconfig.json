@@ -2,7 +2,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "target": "ES5",
+    "target": "es2022",
+    "lib": ["dom", "es2022"],
     "module": "CommonJS",
     "declaration": true,
     "strict": true,

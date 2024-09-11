@@ -25,6 +25,11 @@ const configuration: webpack.Configuration = {
 
   target: 'electron-renderer',
 
+  externals: {
+    'yargs': 'commonjs yargs', // Exclude yargs from the bundle
+    'puppeteer-core': 'commonjs puppeteer-core', // Exclude puppeteer-core
+  },
+
   entry: [path.join(webpackPaths.srcRendererPath, 'index.tsx')],
 
   output: {
@@ -34,6 +39,7 @@ const configuration: webpack.Configuration = {
   },
 
   module: {
+    noParse: /yargs|puppeteer-core/,
     rules: [
       {
         test: /\.s?(a|c)ss$/,
@@ -127,6 +133,45 @@ const configuration: webpack.Configuration = {
       },
       isBrowser: false,
       isDevelopment: false,
+    }),
+    // Handle dynamic requires for yargs
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^yargs$/,
+    }),
+    new webpack.ContextReplacementPlugin(
+      /yargs[\/\\]/,
+      (context) => {
+        // Remove critical dependencies or handle them differently
+        delete context.dependencies;
+        return context;
+      }
+    ),
+
+    new webpack.ContextReplacementPlugin(/yargs\/(build|parser)/, (data) => {
+      delete data.dependencies[0].critical; // Suppress critical warnings
+      return data;
+    }),
+
+    // NormalModuleReplacementPlugin to handle dynamic requires in yargs
+    new webpack.NormalModuleReplacementPlugin(/yargs/, (resource) => {
+      if (/build\/index\.cjs$/.test(resource.request)) {
+        // Replace dynamic requires with an empty or static module
+        resource.request = './build/static.js';
+      }
+    }),
+
+    // Handle dynamic requires for fluent-ffmpeg
+    new webpack.ContextReplacementPlugin(
+      /fluent-ffmpeg\/lib\/options/,
+      (data) => {
+        delete data.dependencies[0].critical; // Suppress critical warnings
+        return data;
+      },
+    ),
+
+    // Ignore lib-cov folder for fluent-ffmpeg
+    new webpack.IgnorePlugin({
+      resourceRegExp: /lib-cov\/fluent-ffmpeg/,
     }),
 
     new webpack.DefinePlugin({

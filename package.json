@@ -97,6 +97,7 @@
   },
   "dependencies": {
     "@electron/notarize": "^2.3.2",
+    "@electron/remote": "^2.1.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "assert": "^2.1.0",
@@ -112,6 +113,7 @@
     "electron-updater": "^6.1.4",
     "fs": "^0.0.1-security",
     "graceful-fs": "^4.2.11",
+    "moduleraid": "^6.2.0",
     "net": "^1.0.2",
     "os": "^0.1.2",
     "os-browserify": "^0.3.0",
@@ -125,10 +127,7 @@
     "recoil": "^0.7.7",
     "stream": "^0.0.3",
     "stream-browserify": "^3.0.0",
-    "telegram": "^2.24.10",
-    "telegram-chat-module": "file:modules/telegram",
-    "util": "^0.12.5",
-    "whatsapp-chat-module": "file:modules/whatsapp"
+    "util": "^0.12.5"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
@@ -177,6 +176,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "mini-css-extract-plugin": "^2.7.6",
     "prettier": "^3.0.3",
+    "puppeteer-core": "^19.2.2",
+    "puppeteer-in-electron": "^3.0.5",
     "react-refresh": "^0.14.0",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.1",
@@ -195,7 +196,7 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "webpack-merge": "^5.10.0",
-    "whatsapp-web.js": "^1.25.0"
+    "whatsapp-web-electron.js": "^1.23.0-1"
   },
   "build": {
     "productName": "ElectronReact",
