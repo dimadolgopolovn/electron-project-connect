@@ -27,15 +27,7 @@ export const WhatsappLogin: React.FC<{
 
   return (
     <div>
-      {authState === AuthState.INIT && (
-        <button
-          onClick={async () => {
-            module.signIn();
-          }}
-        >
-          Login
-        </button>
-      )}
+      {authState === AuthState.INIT && <span>WhatsApp initing</span>}
       {authState === AuthState.SIGNING_IN && (
         <div
           style={{

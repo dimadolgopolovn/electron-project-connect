@@ -25,7 +25,7 @@ const DialogTileContainer = styled.div<{ isSelected: boolean }>((props) => ({
 }));
 
 // Avatar or icon placeholder
-const StyledAvatar = styled.div<{ photoBase64: string | undefined }>`
+const StyledBase64Avatar = styled.div<{ photoBase64: string | undefined }>`
   position: relative;
   width: 40px;
   height: 40px;
@@ -36,6 +36,19 @@ const StyledAvatar = styled.div<{ photoBase64: string | undefined }>`
     props.photoBase64
       ? `url(data:image/jpeg;base64,${props.photoBase64})`
       : 'none'};
+  background-size: cover;
+`;
+
+// Avatar or icon placeholder
+const StyledUrlAvatar = styled.div<{ photoUrl: string | undefined }>`
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ccc; /* Placeholder color */
+  margin-right: 10px;
+  background-image: ${(props) =>
+    props.photoUrl ? `url(${props.photoUrl})` : 'none'};
   background-size: cover;
 `;
 
@@ -65,7 +78,7 @@ const AvatarContainer = styled.div`
   position: relative;
 `;
 
-export const AvatarComponent: React.FC<{
+export const AvatarBase64Component: React.FC<{
   photoBase64: Promise<string | undefined>;
 }> = ({ photoBase64 }) => {
   const [resolvedPhoto, setResolvedPhoto] = React.useState<string | undefined>(
@@ -82,7 +95,30 @@ export const AvatarComponent: React.FC<{
 
   return (
     <AvatarContainer>
-      <StyledAvatar photoBase64={resolvedPhoto} />
+      <StyledBase64Avatar photoBase64={resolvedPhoto} />
+      {isLoading && <Loader />}
+    </AvatarContainer>
+  );
+};
+
+export const AvatarUrlComponent: React.FC<{
+  photoUrl: Promise<string | undefined>;
+}> = ({ photoUrl }) => {
+  const [resolvedPhoto, setResolvedPhoto] = React.useState<string | undefined>(
+    undefined,
+  );
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    photoUrl.then((result) => {
+      setResolvedPhoto(result); // Store the resolved base64 image
+      setIsLoading(false);
+    });
+  }, [photoUrl]);
+
+  return (
+    <AvatarContainer>
+      <StyledUrlAvatar photoUrl={resolvedPhoto} />
       {isLoading && <Loader />}
     </AvatarContainer>
   );
@@ -124,17 +160,27 @@ const UnreadCount = styled.div((props) => ({
 
 export const DialogTile: React.FC<
   DialogTileProps & {
-    photoBase64: Promise<string | undefined>;
+    photoBase64?: Promise<string | undefined>;
+    photoUrl?: Promise<string | undefined>;
     title: string;
     subtitle: string;
     unreadCount: number;
     isSelected: boolean;
     onSelect: () => void;
   }
-> = ({ photoBase64, title, subtitle, unreadCount, isSelected, onSelect }) => {
+> = ({
+  photoBase64,
+  photoUrl,
+  title,
+  subtitle,
+  unreadCount,
+  isSelected,
+  onSelect,
+}) => {
   return (
     <DialogTileContainer isSelected={isSelected} onClick={onSelect}>
-      {<AvatarComponent photoBase64={photoBase64} />}
+      {photoBase64 && <AvatarBase64Component photoBase64={photoBase64} />}
+      {photoUrl && <AvatarUrlComponent photoUrl={photoUrl} />}
       <TextContainer>
         <Title>{title}</Title>
         <Subtitle>{subtitle}</Subtitle>

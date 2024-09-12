@@ -92,8 +92,9 @@ export const DialogsList: React.FC = () => {
           <DialogTile
             key={dialog.id}
             photoBase64={dialog.photoBase64}
+            photoUrl={dialog.photoUrl}
             chatId={dialog.id + ''}
-            title={dialog.name ?? dialog.title ?? 'Unknown'}
+            title={dialog.title ?? 'Unknown'}
             subtitle={dialog.message?.messageText ?? ''}
             unreadCount={dialog.unreadCount}
             isSelected={selectedChatIndex === index}
