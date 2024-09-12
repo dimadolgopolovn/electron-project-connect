@@ -1,6 +1,8 @@
-import { ChatModule, Completer, DialogsRepository } from 'chat-module';
 import { TelegramClient } from 'telegram';
 import { StoreSession } from 'telegram/sessions';
+import { ChatModule } from '../common/chat_module';
+import { DialogsRepository } from '../common/repositories/dialogs_repository';
+import { Completer } from '../common/utils/completer';
 import { TelegramAuthRepository } from './repositories/telegram_auth_repository';
 import { TelegramChatRepository } from './repositories/telegram_chat_repository';
 import { TelegramDialogsRepository } from './repositories/telegram_dialogs_repository';

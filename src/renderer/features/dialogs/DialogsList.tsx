@@ -1,12 +1,15 @@
 import styled from '@emotion/styled';
-import { ChatModule, DialogAggregator, DialogEntity } from 'chat-module';
 import { useEffect, useState } from 'react';
-// import { WhatsappChatModule } from 'whatsapp-chat-module';
-// import { WhatsappChatModule } from '../../wa/whatsapp-chat-module';
-import { WhatsappChatModule } from '../../wa/whatsapp-chat-module';
+import { StoreSession } from 'telegram/sessions';
+import { DialogAggregator } from '../../modules/common/aggregators/dialogs_aggregator';
+import { ChatModule } from '../../modules/common/chat_module';
+import { LastMessageEntity } from '../../modules/common/entities/dialog_entities';
+import { DialogEntity } from '../../modules/common/entities/dialog_list_entities';
+import { TelegramChatModule } from '../../modules/telegram/telegram-chat-module';
+import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp-chat-module';
 import { ChatView } from '../chat/ChatView';
 import { SettingsView } from '../settings/SettingsView';
-import { DialogTile } from './widgets/DialogTile'; // Assuming DialogTile is your chat item component
+import { DialogTile } from './widgets/DialogTile';
 
 // Left column containing the list of chats
 const ChatListColumn = styled.div((props) => ({
@@ -28,16 +31,13 @@ const MainChatContainer = styled.div((props) => ({
   height: '100vh', // Full viewport height for the chat window
 }));
 
-// export const telegramChatModule = new TelegramChatModule({
-//   storeSession: new StoreSession('telegram_session'),
-//   apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
-//   apiHash: process.env.TELEGRAM_API_HASH ?? '',
-// });
+export const telegramChatModule = new TelegramChatModule({
+  storeSession: new StoreSession('telegram_session'),
+  apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
+  apiHash: process.env.TELEGRAM_API_HASH ?? '',
+});
 export const whatsappChatModule = new WhatsappChatModule();
-export const modules: ChatModule[] = [
-  // telegramChatModule,
-  // whatsappChatModule,
-];
+export const modules: ChatModule[] = [telegramChatModule, whatsappChatModule];
 const dialogsAggregator = new DialogAggregator(modules);
 
 async function loadDialogs(): Promise<DialogEntity[]> {
@@ -58,18 +58,20 @@ export const DialogsList: React.FC = () => {
         await module.init();
         const dialogs = await loadDialogs();
         setDialogsList(dialogs);
-        module.dialogsRepository.addNewMessageHandler((message) => {
-          const dialogIndex = dialogs.findIndex(
-            (dialog) => dialog.id === message.dialogId,
-          );
-          if (dialogIndex >= 0) {
-            const newDialogs = [...dialogs];
-            newDialogs[dialogIndex].message = message;
-            // TODO: check if the message is unread
-            newDialogs[dialogIndex].unreadCount++;
-            setDialogsList(newDialogs);
-          }
-        });
+        module.dialogsRepository.addNewMessageHandler(
+          (message: LastMessageEntity) => {
+            const dialogIndex = dialogs.findIndex(
+              (dialog) => dialog.id === message.dialogId,
+            );
+            if (dialogIndex >= 0) {
+              const newDialogs = [...dialogs];
+              newDialogs[dialogIndex].message = message;
+              // TODO: check if the message is unread
+              newDialogs[dialogIndex].unreadCount++;
+              setDialogsList(newDialogs);
+            }
+          },
+        );
       });
     }
   }, []);
@@ -107,10 +109,7 @@ export const DialogsList: React.FC = () => {
         />
       ) : (
         <SettingsView
-          // telegramModule={
-          //   undefined
-          //   // telegramChatModule
-          // }
+          telegramModule={telegramChatModule}
           waModule={whatsappChatModule}
         />
       )}

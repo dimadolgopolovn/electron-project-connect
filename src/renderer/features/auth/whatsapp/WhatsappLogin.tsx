@@ -1,8 +1,8 @@
-import { AuthState } from 'chat-module';
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { atom, useRecoilState } from 'recoil';
-import { WhatsappChatModule } from '../../../wa/whatsapp-chat-module';
+import { AuthState } from '../../../modules/common/enums/auth_state';
+import { WhatsappChatModule } from '../../../modules/whatsapp/whatsapp-chat-module';
 
 export const whatsappAuthState = atom({
   key: 'whatsappAuthState',

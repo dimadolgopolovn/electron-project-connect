@@ -1,11 +1,11 @@
-import {
-  DialogEntity,
-  DialogsRepository,
-  GetDialogsRequest,
-  LastMessageEntity,
-} from 'chat-module';
 import { Api, TelegramClient } from 'telegram';
 import { NewMessage, NewMessageEvent } from 'telegram/events';
+import { LastMessageEntity } from '../../common/entities/dialog_entities';
+import {
+  DialogEntity,
+  GetDialogsRequest,
+} from '../../common/entities/dialog_list_entities';
+import { DialogsRepository } from '../../common/repositories/dialogs_repository';
 import { toDialogEntity, toLastMessageEntity } from '../utils/converters';
 
 export class TelegramDialogsRepository extends DialogsRepository {

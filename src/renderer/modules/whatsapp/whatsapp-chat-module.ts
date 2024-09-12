@@ -1,10 +1,11 @@
-import { ChatModule, Completer, DialogsRepository } from 'chat-module';
-import { Client as WAClient } from 'whatsapp-web-electron.js';
+import { Client } from 'whatsapp-web-electron.js';
+import { ChatModule } from '../common/chat_module';
+import { DialogsRepository } from '../common/repositories/dialogs_repository';
+import { Completer } from '../common/utils/completer';
 import { WhatsappDialogsRepository } from './whatsapp_dialogs_repository';
-const { Client } = require('whatsapp-web-electron.js');
 
 export class WhatsappChatModule extends ChatModule {
-  client: WAClient;
+  client: Client;
   dialogsRepository: DialogsRepository;
   messengerId = 'whatsapp';
   authQr: Completer<string> = new Completer();
@@ -12,7 +13,7 @@ export class WhatsappChatModule extends ChatModule {
 
   constructor() {
     super();
-    this.client = new Client({});
+    this.client = require('@electron/remote').require('./main').getWaClient();
     // console.log('Client initialized:', this.client); // Debugging client
 
     // this.client.on('ready', () => {
@@ -23,7 +24,7 @@ export class WhatsappChatModule extends ChatModule {
     // this.client.initialize();
 
     this.dialogsRepository = new WhatsappDialogsRepository({
-      client: this.client,
+      // client: this.client,
       messengerId: this.messengerId,
     });
   }
@@ -40,7 +41,6 @@ export class WhatsappChatModule extends ChatModule {
   async checkSignedIn(): Promise<void> {}
 
   async signIn(): Promise<void> {
-    this.client = require('@electron/remote').require('./main').getWaClient();
     console.log('Client initialized:', this.client); // Debugging client
     this.client.on('ready', () => {
       console.log('Client is ready');

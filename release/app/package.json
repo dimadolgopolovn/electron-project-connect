@@ -15,8 +15,8 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
+    "puppeteer-core": "^23.3.0",
     "telegram": "^2.24.10",
-    "whatsapp-web-electron.js": "^1.23.0-1",
-    "puppeteer-core": "^23.3.0"
+    "whatsapp-web-electron.js": "^1.23.0-1"
   }
 }

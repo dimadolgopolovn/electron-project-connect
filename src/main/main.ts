@@ -163,19 +163,13 @@ async function connectPuppeteer() {
   try {
     await pie.initialize(app);
     pieBrowser = await pie.connect(app, puppeteer as any);
-    console.log('Pie browser:', pieBrowser);
   } catch (error) {
     console.error('Error initializing Puppeteer:', error);
   }
 }
 
 const getWaClient = () => {
-  console.log('Getting WA client...');
-  console.log('Pie browser:', pieBrowser);
-  console.log('Puppeteer window:', puppeteerWindow);
-  const client = new Client(pieBrowser, puppeteerWindow);
-  console.log('Client initialized:', client); // Debugging client
-  return client;
+  return new Client(pieBrowser, puppeteerWindow);
 };
 
 module.exports = {

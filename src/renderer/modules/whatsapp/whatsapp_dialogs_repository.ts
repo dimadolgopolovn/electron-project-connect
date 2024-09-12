@@ -1,26 +1,27 @@
+// import { Client } from 'whatsapp-web-electron.js';
+
+import { LastMessageEntity } from '../common/entities/dialog_entities';
 import {
   DialogEntity,
-  DialogsRepository,
   GetDialogsRequest,
-  LastMessageEntity,
-} from 'chat-module';
-import { Client } from 'whatsapp-web-electron.js';
+} from '../common/entities/dialog_list_entities';
+import { DialogsRepository } from '../common/repositories/dialogs_repository';
 
 export class WhatsappDialogsRepository extends DialogsRepository {
   constructor({
     messengerId,
-    client,
+    // client,
   }: {
     messengerId: string;
-    client: Client;
+    // client: Client;
   }) {
     super();
     this.messengerId = messengerId;
-    this.client = client;
+    // this.client = client;
   }
 
   messengerId: string;
-  client: Client;
+  // client: Client;
 
   async getDialogsList(request: GetDialogsRequest): Promise<DialogEntity[]> {
     return [];

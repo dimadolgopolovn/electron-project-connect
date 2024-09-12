@@ -1,5 +1,5 @@
-import { Completer } from 'chat-module';
 import { Api, TelegramClient } from 'telegram';
+import { Completer } from '../../common/utils/completer';
 
 export class TelegramAuthRepository {
   constructor({ telegramClient }: { telegramClient: TelegramClient }) {
@@ -16,6 +16,10 @@ export class TelegramAuthRepository {
 
   async fetchSession(): Promise<void> {
     await this.telegramClient.session.load();
+    if (this.hasSession) {
+      await this.telegramClient.connect();
+      this.ready.complete();
+    }
   }
 
   async init(): Promise<void> {
