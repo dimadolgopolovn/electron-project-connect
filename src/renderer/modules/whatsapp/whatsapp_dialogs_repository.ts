@@ -1,4 +1,4 @@
-// import { Client } from 'whatsapp-web-electron.js';
+// import { Client } from 'whatsapp-web.js';
 
 import { LastMessageEntity } from '../common/entities/dialog_entities';
 import {

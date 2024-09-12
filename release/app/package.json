@@ -17,6 +17,6 @@
   "dependencies": {
     "puppeteer-core": "^23.3.0",
     "telegram": "^2.24.10",
-    "whatsapp-web-electron.js": "^1.23.0-1"
+    "whatsapp-web.js": "https://github.com/gicha/whatsapp-web-electron"
   }
 }

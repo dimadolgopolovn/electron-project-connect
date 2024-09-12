@@ -18,7 +18,7 @@ import puppeteer from 'puppeteer-core';
 import pie from 'puppeteer-in-electron';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-const { Client } = require('whatsapp-web-electron.js');
+const { Client } = require('whatsapp-web.js');
 
 class AppUpdater {
   constructor() {

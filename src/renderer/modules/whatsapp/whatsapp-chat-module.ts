@@ -1,4 +1,4 @@
-import { Client } from 'whatsapp-web-electron.js';
+import { Client } from 'whatsapp-web.js';
 import { ChatModule } from '../common/chat_module';
 import { DialogsRepository } from '../common/repositories/dialogs_repository';
 import { Completer } from '../common/utils/completer';
