@@ -8,13 +8,17 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+const remoteMain = require('@electron/remote/main');
 import * as dotenv from 'dotenv';
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
+import puppeteer from 'puppeteer-core';
+import pie from 'puppeteer-in-electron';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+const { Client } = require('whatsapp-web-electron.js');
 
 class AppUpdater {
   constructor() {
@@ -25,6 +29,8 @@ class AppUpdater {
 }
 
 dotenv.config();
+connectPuppeteer();
+remoteMain.initialize();
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -81,11 +87,9 @@ const createWindow = async () => {
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: true,
-      preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
+  remoteMain.enable(mainWindow.webContents);
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
@@ -134,6 +138,7 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+    createPuppeteerWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
@@ -141,3 +146,32 @@ app
     });
   })
   .catch(console.log);
+
+let puppeteerWindow: BrowserWindow | null = null;
+let pieBrowser: any;
+
+const createPuppeteerWindow = () => {
+  puppeteerWindow = new BrowserWindow({
+    show: false,
+    width: 1024,
+    height: 728,
+    fullscreen: false,
+  });
+};
+
+async function connectPuppeteer() {
+  try {
+    await pie.initialize(app);
+    pieBrowser = await pie.connect(app, puppeteer as any);
+  } catch (error) {
+    console.error('Error initializing Puppeteer:', error);
+  }
+}
+
+const getWaClient = () => {
+  return new Client(pieBrowser, puppeteerWindow);
+};
+
+module.exports = {
+  getWaClient,
+};

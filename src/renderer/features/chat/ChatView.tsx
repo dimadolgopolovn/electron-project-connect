@@ -1,5 +1,6 @@
-import { ChatModule, DialogEntity } from 'chat-module';
-import { TelegramChatModule } from 'telegram-chat-module';
+import { ChatModule } from '../../modules/common/chat_module';
+import { DialogEntity } from '../../modules/common/entities/dialog_list_entities';
+import { TelegramChatModule } from '../../modules/telegram/telegram-chat-module';
 import { TelegramChatView } from './TelegramChatView';
 
 export const ChatView: React.FC<{

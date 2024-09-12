@@ -1,13 +1,11 @@
 import styled from '@emotion/styled';
-import { DialogEntity } from 'chat-module';
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Api } from 'telegram';
-import {
-  TelegramChatModule,
-  TelegramChatRepository,
-} from 'telegram-chat-module';
 import { NewMessage, NewMessageEvent } from 'telegram/events';
+import { DialogEntity } from '../../modules/common/entities/dialog_list_entities';
+import { TelegramChatRepository } from '../../modules/telegram/repositories/telegram_chat_repository';
+import { TelegramChatModule } from '../../modules/telegram/telegram-chat-module';
 
 const MessageContainer = styled.div`
   display: flex;
