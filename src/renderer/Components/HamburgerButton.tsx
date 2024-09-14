@@ -22,6 +22,7 @@ const HamburgerButtonContainer = styled.button<{ isOpen: boolean }>`
   transform: translate(${OG_TRANSLATE}, 0);
 
   & svg {
+    transition: ${TRANSITION_LENGTH} fill;
     fill: #888;
   }
 
@@ -29,7 +30,7 @@ const HamburgerButtonContainer = styled.button<{ isOpen: boolean }>`
     /* Animation to transform the hamburger into an 'X' on hover */
     transform: translate(0, 0);
     & svg {
-      fill: #333;
+      fill: #a8a8a8;
     }
   }
 

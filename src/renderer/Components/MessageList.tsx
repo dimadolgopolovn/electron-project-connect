@@ -2,6 +2,10 @@ import React from 'react'
 import { MessageList, MessageType } from 'react-chat-elements'
 import 'react-chat-elements/dist/main.css'
 
+const TITLE_COLOR = '#A0A8AF'
+const DATE_COLOR = '#A1AAB3'
+const MESSAGE_TEXT_COLOR = '#FFFFFF'
+
 // Sample Data
 const messages: MessageType[] = [
   {
@@ -39,19 +43,24 @@ import { mapArrayWithDateToDateString } from '../util'
 
 const StyledMessageList = styled(MessageList)`
   margin-top: 18px;
-  margin-left: 10px;
-  margin-right: 10px;
+  /* margin-left: 10px; */
+  /* margin-right: 10px; */
   margin-bottom: 18px;
+
+  .rce-container-mbox:not(:last-child) {
+    margin-bottom: 16px;
+  }
 
   .flat-message {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 
   .flat-message-avatar {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     margin-right: 10px;
     background-color: #888;
     border-radius: 50%;
@@ -67,19 +76,22 @@ const StyledMessageList = styled(MessageList)`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    margin-top: 2px; // this is to make Avatar and the first line of the message align. Need to adjust manually if layout changes
+    margin-bottom: 2px;
 
     /* title slightly bigger than date and bold */
     /* text slightly bigger than title */
+    // NAME
     & .flat-message-title {
       font-size: 0.82em;
-      color: #222;
+      color: ${TITLE_COLOR};
       font-weight: bold;
     }
 
+    // DATE
     & .flat-message-date {
       font-size: 0.8em;
-      color: gray;
+      color: ${DATE_COLOR};
     }
   }
 
@@ -88,11 +100,12 @@ const StyledMessageList = styled(MessageList)`
     padding: 0;
     border-radius: 0;
 
-    font-size: 0.98em;
+    font-size: 0.88em;
 
+    // TEXT
     & .flat-message-text {
       white-space: pre-wrap;
-      color: #121314;
+      color: ${MESSAGE_TEXT_COLOR};
     }
   }
 `
