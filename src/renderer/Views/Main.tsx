@@ -43,13 +43,14 @@ const ChatViewPaneContainer = styled.div`
   margin-right: 16px; // needed to create the right paddings everywhere
 `
 
+const CHATVIEW_MARGIN_BOTTOM = '16px'
 const ChatViewContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
 
-  margin-bottom: 16px;
+  margin-bottom: ${CHATVIEW_MARGIN_BOTTOM};
 
   background-color: ${MESSAGE_LIST_BACKGROUND_COLOR};
   border: 0.5px ${MESSAGE_LIST_BORDER_COLOR} solid;
@@ -90,6 +91,15 @@ const CustomInput = styled(Input)`
   }
 `
 
+const CustomAllotment = styled(Allotment)`
+  & .sash {
+    // without this sash (the split drag components goes to the bottom of the screen, when the visible div has margin)
+    height: calc(
+      100% - ${CHATVIEW_MARGIN_BOTTOM}
+    ); // we can even compensate for round corners in the future and make it a few px shorter
+  }
+`
+
 const MainChatApp: React.FC = () => {
   const inputRef = useRef(null)
   const inputClearRef = useRef<Function | null>(null)
@@ -111,7 +121,7 @@ const MainChatApp: React.FC = () => {
           />
         </Header>
         {/* Sizes are in px. DefaultSizes are scaled to ratio */}
-        <Allotment proportionalLayout={false} separator={false}>
+        <CustomAllotment proportionalLayout={false} separator={false}>
           <Allotment.Pane
             minSize={250}
             maxSize={Infinity}
@@ -153,7 +163,7 @@ const MainChatApp: React.FC = () => {
               </ChatViewContainer>
             </ChatViewPaneContainer>
           </Allotment.Pane>
-        </Allotment>
+        </CustomAllotment>
       </MainContainer>
     </>
   )
