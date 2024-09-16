@@ -4,8 +4,8 @@ import { TelegramLogin } from '../auth/telegram/TelegramLogin';
 import { WhatsappLogin } from '../auth/whatsapp/WhatsappLogin';
 
 export const SettingsView: React.FC<{
-  telegramModule: TelegramChatModule | undefined;
-  waModule: WhatsappChatModule | undefined;
+  telegramModule: TelegramChatModule | null;
+  waModule: WhatsappChatModule | null;
 }> = (modules) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>

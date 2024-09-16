@@ -38,4 +38,5 @@ export interface DialogEntity {
   isUser: boolean;
   isGroup: boolean;
   isChannel: boolean;
+  nativeChatObject?: any;
 }

@@ -39,11 +39,11 @@ export class WhatsappDialogsRepository extends DialogsRepository {
         };
       }
       return <DialogEntity>{
+        nativeChatObject: chat,
         messengerId: this.messengerId,
         pinned: chat.pinned,
         archived: chat.archived,
         date: chat.timestamp,
-        id: chat.id.user,
         title: chat.name,
         unreadCount: chat.unreadCount,
         isUser: true,

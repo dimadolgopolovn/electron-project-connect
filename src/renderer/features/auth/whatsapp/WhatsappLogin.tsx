@@ -16,11 +16,11 @@ export const WhatsappLogin: React.FC<{
   const [qr, setQr] = useState<string>('');
 
   useEffect(() => {
-    module.authQr.promise.then((qr) => {
+    module.authQr.then((qr) => {
       setQr(qr);
       setAuthState(AuthState.SIGNING_IN);
     });
-    module.onAuthComplete.promise.then(() => {
+    module.onReady.then(() => {
       setAuthState(AuthState.HAS_SESSION);
     });
   }, []);

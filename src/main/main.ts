@@ -16,6 +16,7 @@ import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import puppeteer from 'puppeteer-core';
 import pie from 'puppeteer-in-electron';
+import { Client as WhatsAppClient } from 'whatsapp-web.js';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 const { Client } = require('whatsapp-web.js');
@@ -66,6 +67,7 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
+  console.log('Creating window');
   if (isDebug) {
     await installExtensions();
   }
@@ -149,6 +151,9 @@ app
 
 let puppeteerWindow: BrowserWindow | null = null;
 let pieBrowser: any;
+let waClient: WhatsAppClient;
+let waQrPromise: Promise<string>;
+let waReadyPromise: Promise<void>;
 
 const createPuppeteerWindow = () => {
   puppeteerWindow = new BrowserWindow({
@@ -157,21 +162,46 @@ const createPuppeteerWindow = () => {
     height: 728,
     fullscreen: false,
   });
+  initWhatsAppClient();
 };
 
 async function connectPuppeteer() {
   try {
     await pie.initialize(app);
     pieBrowser = await pie.connect(app, puppeteer as any);
+    initWhatsAppClient();
   } catch (error) {
     console.error('Error initializing Puppeteer:', error);
   }
 }
 
-const getWaClient = () => {
-  return new Client(pieBrowser, puppeteerWindow);
+async function initWhatsAppClient() {
+  if (!pieBrowser || !puppeteerWindow) return;
+  const client: WhatsAppClient = new Client(pieBrowser, puppeteerWindow);
+  waQrPromise = new Promise((resolve) => {
+    client.on('qr', (qr) => resolve(qr));
+  });
+  waReadyPromise = new Promise((resolve) => {
+    client.on('ready', () => resolve());
+  });
+  await client.initialize();
+  waClient = client;
+}
+
+const getWhatsAppClient = () => {
+  return waClient;
+};
+
+const getWhatsAppQrPromise = () => {
+  return waQrPromise;
+};
+
+const getWhatsAppReadyPromise = () => {
+  return waReadyPromise;
 };
 
 module.exports = {
-  getWaClient,
+  getWhatsAppClient,
+  getWhatsAppQrPromise,
+  getWhatsAppReadyPromise,
 };

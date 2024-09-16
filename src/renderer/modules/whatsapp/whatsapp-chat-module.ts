@@ -8,26 +8,43 @@ export class WhatsappChatModule extends ChatModule {
   client: Client;
   dialogsRepository: DialogsRepository;
   messengerId = 'whatsapp';
-  authQr: Completer<string> = new Completer();
-  onAuthComplete: Completer<void> = new Completer();
+  authQr: Promise<string>;
+  onReady: Promise<void>;
+  onAuthComplete: Completer<void> = new Completer<void>();
 
-  constructor() {
+  constructor({
+    client,
+    authQr,
+    onReady,
+  }: {
+    client: Client;
+    authQr: Promise<string>;
+    onReady: Promise<void>;
+  }) {
     super();
-    this.client = require('@electron/remote').require('./main').getWaClient();
-    console.log('Client initialized:', this.client); // Debugging client
-    this.client.on('ready', () => {
-      console.log('Client is ready');
+    this.client = client;
+    this.authQr = authQr;
+    this.onReady = onReady;
+    onReady.then(() => {
+      console.log('WhatsApp client', this.client);
       this.onAuthComplete.complete();
     });
-    this.client.on('qr', (qr) => this.authQr.complete(qr));
-    try {
-      this.client.initialize();
-    } catch (_) {}
-
     this.dialogsRepository = new WhatsappDialogsRepository({
       client: this.client,
       messengerId: this.messengerId,
     });
+  }
+
+  static async getWADependencies(): Promise<
+    | { client: Client; authQr: Promise<string>; onReady: Promise<void> }
+    | undefined
+  > {
+    const dependencies = require('@electron/remote').require('./main');
+    const client = dependencies.getWhatsAppClient();
+    if (!client) return undefined;
+    const authQr = dependencies.getWhatsAppQrPromise();
+    const onReady = dependencies.getWhatsAppReadyPromise();
+    return { client, authQr, onReady: onReady };
   }
 
   async init(): Promise<void> {
