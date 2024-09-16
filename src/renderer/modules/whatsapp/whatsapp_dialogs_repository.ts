@@ -52,8 +52,12 @@ export class WhatsappDialogsRepository extends DialogsRepository {
         message: lastMessage,
         photoUrl: new Promise(async (resolve) => {
           const contact = await chat.getContact();
-          const photoUrl = await contact.getProfilePicUrl();
-          resolve(photoUrl);
+          try {
+            const photoUrl = await contact.getProfilePicUrl();
+            resolve(photoUrl);
+          } catch (error) {
+            resolve('');
+          }
         }),
       };
     });
