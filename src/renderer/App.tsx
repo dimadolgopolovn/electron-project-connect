@@ -1,14 +1,17 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom'
-// import icon from '../../assets/icon.svg'
+import { Route, MemoryRouter as Router, Routes } from 'react-router-dom'
+import { RecoilRoot } from 'recoil'
 import './App.css'
-import Main from './Views/Main'
+import { DialogsList } from './features/dialogs/DialogsList'
+import Main from './Views/Main' // Dima branch
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Main />} />
-      </Routes>
-    </Router>
+    <RecoilRoot>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Main />} />
+        </Routes>
+      </Router>
+    </RecoilRoot>
   )
 }

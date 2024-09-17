@@ -5,11 +5,20 @@
       "name": "Electron: Main",
       "type": "node",
       "request": "launch",
-      "protocol": "inspector",
+      "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
+      "runtimeArgs": [
+        "run",
+        "start"
+      ],
+      "outputCapture": "std",
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
       "env": {
-        "MAIN_ARGS": "--inspect=5858 --remote-debugging-port=9223"
+        "NODE_ENV": "development"
       }
     },
     {
@@ -18,13 +27,16 @@
       "request": "attach",
       "port": 9223,
       "webRoot": "${workspaceFolder}",
-      "timeout": 15000
+      "timeout": 30000
     }
   ],
   "compounds": [
     {
       "name": "Electron: All",
-      "configurations": ["Electron: Main", "Electron: Renderer"]
+      "configurations": [
+        "Electron: Main",
+        "Electron: Renderer"
+      ]
     }
   ]
 }

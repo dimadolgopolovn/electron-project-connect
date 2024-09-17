@@ -1,15 +1,15 @@
-import 'webpack-dev-server';
-import path from 'path';
-import fs from 'fs';
-import webpack from 'webpack';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import chalk from 'chalk';
-import { merge } from 'webpack-merge';
-import { execSync, spawn } from 'child_process';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import chalk from 'chalk';
+import { execSync, spawn } from 'child_process';
+import fs from 'fs';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import path from 'path';
+import webpack from 'webpack';
+import 'webpack-dev-server';
+import { merge } from 'webpack-merge';
+import checkNodeEnv from '../scripts/check-node-env';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
-import checkNodeEnv from '../scripts/check-node-env';
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
@@ -43,7 +43,12 @@ const configuration: webpack.Configuration = {
 
   mode: 'development',
 
-  target: ['web', 'electron-renderer'],
+  target: 'electron-renderer',
+
+  externals: {
+    'yargs': 'commonjs yargs', // Exclude yargs from the bundle
+    'puppeteer-core': 'commonjs puppeteer-core', // Exclude puppeteer-core
+  },
 
   entry: [
     `webpack-dev-server/client?http://localhost:${port}/dist`,
@@ -55,12 +60,10 @@ const configuration: webpack.Configuration = {
     path: webpackPaths.distRendererPath,
     publicPath: '/',
     filename: 'renderer.dev.js',
-    library: {
-      type: 'umd',
-    },
   },
 
   module: {
+    noParse: /yargs|puppeteer-core/,
     rules: [
       {
         test: /\.s?(c|a)ss$/,
@@ -161,6 +164,45 @@ const configuration: webpack.Configuration = {
       env: process.env.NODE_ENV,
       isDevelopment: process.env.NODE_ENV !== 'production',
       nodeModules: webpackPaths.appNodeModulesPath,
+    }),
+    // Handle dynamic requires for yargs
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^yargs$/,
+    }),
+    new webpack.ContextReplacementPlugin(
+      /yargs[\/\\]/,
+      (context) => {
+        // Remove critical dependencies or handle them differently
+        delete context.dependencies;
+        return context;
+      }
+    ),
+
+    new webpack.ContextReplacementPlugin(/yargs\/(build|parser)/, (data) => {
+      delete data.dependencies[0].critical; // Suppress critical warnings
+      return data;
+    }),
+
+    // NormalModuleReplacementPlugin to handle dynamic requires in yargs
+    new webpack.NormalModuleReplacementPlugin(/yargs/, (resource) => {
+      if (/build\/index\.cjs$/.test(resource.request)) {
+        // Replace dynamic requires with an empty or static module
+        resource.request = './build/static.js';
+      }
+    }),
+
+    // Handle dynamic requires for fluent-ffmpeg
+    new webpack.ContextReplacementPlugin(
+      /fluent-ffmpeg\/lib\/options/,
+      (data) => {
+        delete data.dependencies[0].critical; // Suppress critical warnings
+        return data;
+      },
+    ),
+
+    // Ignore lib-cov folder for fluent-ffmpeg
+    new webpack.IgnorePlugin({
+      resourceRegExp: /lib-cov\/fluent-ffmpeg/,
     }),
   ],
 

@@ -3,14 +3,14 @@
  */
 
 import path from 'path';
-import webpack from 'webpack';
-import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
+import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import baseConfig from './webpack.config.base';
-import webpackPaths from './webpack.paths';
+import { merge } from 'webpack-merge';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
+import baseConfig from './webpack.config.base';
+import webpackPaths from './webpack.paths';
 
 checkNodeEnv('production');
 deleteSourceMaps();
@@ -24,7 +24,6 @@ const configuration: webpack.Configuration = {
 
   entry: {
     main: path.join(webpackPaths.srcMainPath, 'main.ts'),
-    preload: path.join(webpackPaths.srcMainPath, 'preload.ts'),
   },
 
   output: {
@@ -67,6 +66,45 @@ const configuration: webpack.Configuration = {
     new webpack.DefinePlugin({
       'process.type': '"browser"',
     }),
+    // Handle dynamic requires for yargs
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^yargs$/,
+    }),
+    new webpack.ContextReplacementPlugin(
+      /yargs[\/\\]/,
+      (context) => {
+        // Remove critical dependencies or handle them differently
+        delete context.dependencies;
+        return context;
+      }
+    ),
+
+    new webpack.ContextReplacementPlugin(/yargs\/(build|parser)/, (data) => {
+      delete data.dependencies[0].critical; // Suppress critical warnings
+      return data;
+    }),
+
+    // NormalModuleReplacementPlugin to handle dynamic requires in yargs
+    new webpack.NormalModuleReplacementPlugin(/yargs/, (resource) => {
+      if (/build\/index\.cjs$/.test(resource.request)) {
+        // Replace dynamic requires with an empty or static module
+        resource.request = './build/static.js';
+      }
+    }),
+
+    // Handle dynamic requires for fluent-ffmpeg
+    new webpack.ContextReplacementPlugin(
+      /fluent-ffmpeg\/lib\/options/,
+      (data) => {
+        delete data.dependencies[0].critical; // Suppress critical warnings
+        return data;
+      },
+    ),
+
+    // Ignore lib-cov folder for fluent-ffmpeg
+    new webpack.IgnorePlugin({
+      resourceRegExp: /lib-cov\/fluent-ffmpeg/,
+    }),
   ],
 
   /**
@@ -77,6 +115,10 @@ const configuration: webpack.Configuration = {
   node: {
     __dirname: false,
     __filename: false,
+  },
+  externals: {
+    'yargs': 'commonjs yargs', // Exclude yargs from the bundle
+    'puppeteer-core': 'commonjs puppeteer-core', // Exclude puppeteer-core
   },
 };
 
