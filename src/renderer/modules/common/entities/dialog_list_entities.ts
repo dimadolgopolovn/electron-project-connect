@@ -26,17 +26,17 @@ export type MessengerId = string;
 
 export interface DialogEntity {
   messengerId: MessengerId;
-  photoBase64: Promise<string | undefined>;
+  photoBase64?: Promise<string | undefined>;
+  photoUrl?: Promise<string | undefined>;
   pinned: boolean;
   archived: boolean;
   message?: LastMessageEntity;
   date: number;
   id?: UnifiedObjectId;
-  name?: string;
   title?: string;
   unreadCount: number;
-  unreadMentionsCount: number;
   isUser: boolean;
   isGroup: boolean;
   isChannel: boolean;
+  nativeChatObject?: any;
 }

@@ -1,11 +1,11 @@
-import {
-  DialogEntity,
-  LastMessageEntity,
-  TypeMessageMediaEntity,
-} from 'chat-module';
 import { Api, TelegramClient } from 'telegram';
 import { Entity } from 'telegram/define';
 import { Dialog } from 'telegram/tl/custom/dialog';
+import {
+  LastMessageEntity,
+  TypeMessageMediaEntity,
+} from '../../common/entities/dialog_entities';
+import { DialogEntity } from '../../common/entities/dialog_list_entities';
 
 export const toLastMessageEntity = (
   lastMessage: Api.Message,
@@ -46,9 +46,7 @@ export const toDialogEntity = (
   dialog: Dialog,
 ): DialogEntity => {
   const lastMessage = dialog.message;
-  console.log('dialog', dialog);
   let chatPhoto = dialogPhotoPromise(client, dialog.entity);
-  console.log('chatPhoto', chatPhoto);
   return <DialogEntity>{
     messengerId: 'telegram',
     pinned: dialog.pinned,

@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { useEffect, useState } from 'react';
 import { StoreSession } from 'telegram/sessions';
+import { Client as WhatsAppClient } from 'whatsapp-web.js';
 import { DialogAggregator } from '../../modules/common/aggregators/dialogs_aggregator';
 import { ChatModule } from '../../modules/common/chat_module';
 import { LastMessageEntity } from '../../modules/common/entities/dialog_entities';
@@ -31,49 +32,86 @@ const MainChatContainer = styled.div((props) => ({
   height: '100vh', // Full viewport height for the chat window
 }));
 
-export const telegramChatModule = new TelegramChatModule({
-  storeSession: new StoreSession('telegram_session'),
-  apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
-  apiHash: process.env.TELEGRAM_API_HASH ?? '',
-});
-export const whatsappChatModule = new WhatsappChatModule();
-export const modules: ChatModule[] = [telegramChatModule, whatsappChatModule];
-const dialogsAggregator = new DialogAggregator(modules);
-
-async function loadDialogs(): Promise<DialogEntity[]> {
-  return dialogsAggregator.getDialogsList({
+async function loadDialogs(
+  dialogAggregator: DialogAggregator,
+): Promise<DialogEntity[]> {
+  return dialogAggregator.getDialogsList({
     limit: 10,
     ignorePinned: false,
     archived: false,
   });
 }
 
+function getTelegramModule() {
+  return new TelegramChatModule({
+    storeSession: new StoreSession('telegram_session'),
+    apiId: parseInt(process.env.TELEGRAM_API_ID ?? ''),
+    apiHash: process.env.TELEGRAM_API_HASH ?? '',
+  });
+}
+async function getWhatsappModule() {
+  const maxConnectionAttempts = 10;
+  let connectionAttempts = 0;
+  let moduleDependencies:
+    | {
+        client: WhatsAppClient;
+        authQr: Promise<string>;
+        onReady: Promise<void>;
+      }
+    | undefined = await WhatsappChatModule.getWADependencies();
+  while (!moduleDependencies && connectionAttempts < maxConnectionAttempts) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    moduleDependencies = await WhatsappChatModule.getWADependencies();
+    connectionAttempts++;
+  }
+  if (!moduleDependencies) {
+    throw new Error('Failed to connect to WhatsApp');
+  }
+  return new WhatsappChatModule(moduleDependencies);
+}
+
 export const DialogsList: React.FC = () => {
+  const [telegramChatModule, setTelegramChatModule] =
+    useState<TelegramChatModule | null>(null);
+  const [whatsappChatModule, setWhatsappChatModule] =
+    useState<WhatsappChatModule | null>(null);
+  const [modules, setModules] = useState<ChatModule[]>([]);
+
   const [dialogsList, setDialogsList] = useState<DialogEntity[]>([]);
   const [selectedChatIndex, setSelectedChatIndex] = useState(-1);
 
   useEffect(() => {
-    for (const module of modules) {
-      module.onAuthComplete.promise.then(async () => {
-        await module.init();
-        const dialogs = await loadDialogs();
-        setDialogsList(dialogs);
-        module.dialogsRepository.addNewMessageHandler(
-          (message: LastMessageEntity) => {
-            const dialogIndex = dialogs.findIndex(
-              (dialog) => dialog.id === message.dialogId,
-            );
-            if (dialogIndex >= 0) {
-              const newDialogs = [...dialogs];
-              newDialogs[dialogIndex].message = message;
-              // TODO: check if the message is unread
-              newDialogs[dialogIndex].unreadCount++;
-              setDialogsList(newDialogs);
-            }
-          },
-        );
-      });
-    }
+    const telegramChatModule = getTelegramModule();
+    getWhatsappModule().then((whatsappChatModule) => {
+      setTelegramChatModule(telegramChatModule);
+      setWhatsappChatModule(whatsappChatModule);
+      const modules = [telegramChatModule, whatsappChatModule];
+      setModules(modules);
+      const dialogsAggregator = new DialogAggregator(modules);
+      for (const module of modules) {
+        console.log('Waiting for auth complete', module.messengerId);
+        module.onAuthComplete.promise.then(async () => {
+          console.log('Auth complete', module.messengerId);
+          await module.init();
+          const dialogs = await loadDialogs(dialogsAggregator);
+          setDialogsList(dialogs);
+          module.dialogsRepository.addNewMessageHandler(
+            (message: LastMessageEntity) => {
+              const dialogIndex = dialogs.findIndex(
+                (dialog) => dialog.id === message.dialogId,
+              );
+              if (dialogIndex >= 0) {
+                const newDialogs = [...dialogs];
+                newDialogs[dialogIndex].message = message;
+                // TODO: check if the message is unread
+                newDialogs[dialogIndex].unreadCount++;
+                setDialogsList(newDialogs);
+              }
+            },
+          );
+        });
+      }
+    });
   }, []);
 
   return (
@@ -92,8 +130,9 @@ export const DialogsList: React.FC = () => {
           <DialogTile
             key={dialog.id}
             photoBase64={dialog.photoBase64}
+            photoUrl={dialog.photoUrl}
             chatId={dialog.id + ''}
-            title={dialog.name ?? dialog.title ?? 'Unknown'}
+            title={dialog.title ?? 'Unknown'}
             subtitle={dialog.message?.messageText ?? ''}
             unreadCount={dialog.unreadCount}
             isSelected={selectedChatIndex === index}
