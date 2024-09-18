@@ -1,6 +1,13 @@
 import { LastMessageEntity } from '../entities/dialog_entities';
 
 export class NotificationsRepository {
+  /**
+   * Show a notification with the given message.
+   * @param message The message to show in the notification.
+   * @param silent Whether the notification should be silent or not.
+   * @returns void
+   * @example
+   */
   showNotification(message: LastMessageEntity, silent = false): void {
     const NOTIFICATION_TITLE = message.postAuthor || 'New message';
     const NOTIFICATION_BODY = message.messageText;

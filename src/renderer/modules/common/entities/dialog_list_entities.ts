@@ -24,6 +24,27 @@ export interface GetDialogsRequest {
 
 export type MessengerId = string;
 
+/**
+ * Represents a dialog entity in the application.
+ *
+ * @interface DialogEntity
+ *
+ * @property {MessengerId} messengerId - The identifier for the messenger.
+ * @property {UnifiedObjectId} [id] - The unified object identifier.
+ * @property {any} nativeId - The native identifier for the dialog.
+ * @property {Promise<string | undefined>} [photoBase64] - A promise that resolves to the base64 encoded photo string.
+ * @property {Promise<string | undefined>} [photoUrl] - A promise that resolves to the URL of the photo.
+ * @property {boolean} pinned - Indicates if the dialog is pinned.
+ * @property {boolean} archived - Indicates if the dialog is archived.
+ * @property {LastMessageEntity} [message] - The last message entity in the dialog.
+ * @property {number} date - The date of the dialog.
+ * @property {string} [title] - The title of the dialog.
+ * @property {number} unreadCount - The count of unread messages in the dialog.
+ * @property {boolean} isUser - Indicates if the dialog is with a user.
+ * @property {boolean} isGroup - Indicates if the dialog is with a group.
+ * @property {boolean} isChannel - Indicates if the dialog is with a channel.
+ * @property {any} [nativeChatObject] - The native chat object associated with the dialog.
+ */
 export interface DialogEntity {
   messengerId: MessengerId;
   id?: UnifiedObjectId;
