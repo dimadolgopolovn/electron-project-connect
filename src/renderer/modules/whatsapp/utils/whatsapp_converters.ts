@@ -9,16 +9,19 @@ export class WhatsAppConverters {
   static toLastMessageEntity(
     waLastMessage: Message,
     chatId: UnifiedObjectId,
+    silent?: boolean,
   ): LastMessageEntity {
     return {
       messengerId: 'whatsapp',
       id: waLastMessage.id.id,
+      nativeId: waLastMessage.id,
       date: waLastMessage.timestamp,
       messageText: waLastMessage.body,
       views: 0,
       dialogId: chatId,
       postAuthor: waLastMessage.from,
       media: undefined, // TODO: implement this
+      silent: silent ?? false,
     };
   }
 
@@ -34,6 +37,7 @@ export class WhatsAppConverters {
     }
     return <DialogEntity>{
       id: chatId,
+      nativeId: chat.id,
       nativeChatObject: chat,
       messengerId: 'whatsapp',
       pinned: chat.pinned,

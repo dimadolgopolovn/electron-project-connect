@@ -6,10 +6,7 @@ import {
   GetDialogsRequest,
 } from '../../common/entities/dialog_list_entities';
 import { DialogsRepository } from '../../common/repositories/dialogs_repository';
-import {
-  toDialogEntity,
-  toLastMessageEntity,
-} from '../utils/telegram_converters';
+import { TelegramConverters } from '../utils/telegram_converters';
 
 export class TelegramDialogsRepository extends DialogsRepository {
   constructor({
@@ -37,7 +34,7 @@ export class TelegramDialogsRepository extends DialogsRepository {
       archived: request.archived,
     });
     return telegramDialogs.map<DialogEntity>((dialog) =>
-      toDialogEntity(this.telegramClient, dialog),
+      TelegramConverters.toDialogEntity(this.telegramClient, dialog),
     );
   }
 
@@ -47,11 +44,13 @@ export class TelegramDialogsRepository extends DialogsRepository {
   > = new Map();
 
   addNewMessageHandler(callback: (event: LastMessageEntity) => void): void {
-    const tgCallback = (event: NewMessageEvent) => {
+    const tgCallback = async (event: NewMessageEvent) => {
       const messageData = event.message;
       if (messageData === undefined) return;
+      const chat = await messageData.getChat();
+      if (chat === undefined) return;
       const message = messageData as Api.Message;
-      callback(toLastMessageEntity(message));
+      callback(TelegramConverters.toLastMessageEntity(message));
     };
     this.messageCallbackMap.set(callback, tgCallback);
     this.telegramClient.addEventHandler(tgCallback, new NewMessage({}));

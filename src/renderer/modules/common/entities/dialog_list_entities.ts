@@ -26,13 +26,14 @@ export type MessengerId = string;
 
 export interface DialogEntity {
   messengerId: MessengerId;
+  id?: UnifiedObjectId;
+  nativeId: any;
   photoBase64?: Promise<string | undefined>;
   photoUrl?: Promise<string | undefined>;
   pinned: boolean;
   archived: boolean;
   message?: LastMessageEntity;
   date: number;
-  id?: UnifiedObjectId;
   title?: string;
   unreadCount: number;
   isUser: boolean;

@@ -88,6 +88,10 @@ export const DialogsList: React.FC = () => {
       const modules = [telegramChatModule, whatsappChatModule];
       setModules(modules);
       const dialogsAggregator = new DialogAggregator(modules);
+      dialogsAggregator.init().then(async () => {
+        const dialogs = await loadDialogs(dialogsAggregator);
+        setDialogsList(dialogs);
+      });
       for (const module of modules) {
         console.log('Waiting for auth complete', module.messengerId);
         module.onAuthComplete.promise.then(async () => {

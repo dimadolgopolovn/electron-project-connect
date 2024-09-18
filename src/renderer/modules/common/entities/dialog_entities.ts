@@ -20,12 +20,17 @@ export interface LastMessageEntity {
    * Any other member is optional and may be `undefined`.
    */
   id: UnifiedObjectId;
+
+  /**
+   * The ID of the message this message is replying to, if any.
+   */
+  nativeId: any;
   /**
    * The peer who sent this message, which is either
    * {@link Api.PeerUser}, {@link Api.PeerChat} or {@link Api.PeerChannel}.
    * This value will be `undefined` for anonymous messages.
    */
-  dialogId?: UnifiedObjectId;
+  dialogId: UnifiedObjectId;
   /**
    * The timestamp indicating when this message was sent.
    * This will always be present except for empty messages.
@@ -53,5 +58,9 @@ export interface LastMessageEntity {
   /**
    * The display name of the message sender to show in messages sent to broadcast channels.
    */
-  postAuthor?: string;
+  postAuthor: string;
+  /**
+   * Silent messages are messages that don't produce a notification.
+   */
+  silent: boolean;
 }
