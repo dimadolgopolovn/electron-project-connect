@@ -1,66 +1,67 @@
-import { useEffect, useState } from 'react';
-import { atom, useRecoilState } from 'recoil';
-import { AuthState } from '../../../modules/common/enums/auth_state';
-import { Completer } from '../../../modules/common/utils/completer';
-import { TelegramAuthRepository } from '../../../modules/telegram/repositories/telegram_auth_repository';
-import { TelegramAuthStep } from './enums/telegram_auth_step';
+import { useEffect, useState } from 'react'
+import { atom, useRecoilState } from 'recoil'
+import { AuthState } from '../../../modules/common/enums/auth_state'
+import { Completer } from '../../../modules/common/utils/completer'
+import { TelegramAuthRepository } from '../../../modules/telegram/repositories/telegram_auth_repository'
+import { TelegramAuthStep } from './enums/telegram_auth_step'
 
 export const telegramAuthState = atom({
   key: 'telegramAuthState',
   default: AuthState.INIT,
-});
+})
 
-let phoneCompleter: Completer<string> = new Completer<string>();
-let passwordCompleter: Completer<string> = new Completer<string>();
-let codeCompleter: Completer<string> = new Completer<string>();
+let phoneCompleter: Completer<string> = new Completer<string>()
+let passwordCompleter: Completer<string> = new Completer<string>()
+let codeCompleter: Completer<string> = new Completer<string>()
 
 export const TelegramLogin: React.FC<{
-  authRepository: TelegramAuthRepository;
+  authRepository: TelegramAuthRepository
 }> = ({ authRepository }) => {
   // idk how connect user input to promise, used Completer pattern
-  const [authState, setAuthState] = useRecoilState(telegramAuthState);
-  const [authStep, setAuthStep] = useState(TelegramAuthStep.PHONE);
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
+  const [authState, setAuthState] = useRecoilState(telegramAuthState)
+  const [authStep, setAuthStep] = useState(TelegramAuthStep.PHONE)
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [code, setCode] = useState('')
 
+  // TODO: Not sure if completer is the best pattern for this. Rewrite for browser use (?)
   const initTelegramCallback = async () => {
-    await authRepository.init();
+    await authRepository.init()
     if (authRepository.hasSession) {
-      setAuthState(AuthState.HAS_SESSION);
+      setAuthState(AuthState.HAS_SESSION)
     } else {
-      setAuthState(AuthState.SIGNING_IN);
+      setAuthState(AuthState.SIGNING_IN)
       await authRepository.signIn({
         phoneProvider: async () => {
-          console.log('phoneProvider');
-          setAuthStep(TelegramAuthStep.PHONE);
-          phoneCompleter = new Completer<string>();
-          return phoneCompleter.promise;
+          console.log('phoneProvider')
+          setAuthStep(TelegramAuthStep.PHONE)
+          phoneCompleter = new Completer<string>()
+          return phoneCompleter.promise
         },
         passwordProvider: async () => {
-          console.log('passwordProvider');
-          setAuthStep(TelegramAuthStep.PASSWORD);
-          passwordCompleter = new Completer<string>();
-          return passwordCompleter.promise;
+          console.log('passwordProvider')
+          setAuthStep(TelegramAuthStep.PASSWORD)
+          passwordCompleter = new Completer<string>()
+          return passwordCompleter.promise
         },
         codeProvider: async () => {
-          console.log('codeProvider');
-          setAuthStep(TelegramAuthStep.CODE);
-          codeCompleter = new Completer<string>();
-          return codeCompleter.promise;
+          console.log('codeProvider')
+          setAuthStep(TelegramAuthStep.CODE)
+          codeCompleter = new Completer<string>()
+          return codeCompleter.promise
         },
-      });
+      })
       if (authRepository.hasSession) {
-        setAuthState(AuthState.HAS_SESSION);
+        setAuthState(AuthState.HAS_SESSION)
       }
     }
-  };
+  }
 
   useEffect(() => {
     if (authState === AuthState.INIT) {
-      initTelegramCallback();
+      initTelegramCallback()
     }
-  }, [authState]);
+  }, [authState])
 
   return (
     <div>
@@ -78,13 +79,13 @@ export const TelegramLogin: React.FC<{
                 onChange={(e) => setPhone(e.target.value)}
                 onKeyUp={(e) => {
                   if (e.key === 'Enter') {
-                    phoneCompleter.complete(phone);
+                    phoneCompleter.complete(phone)
                   }
                 }}
               />
               <button
                 onClick={() => {
-                  phoneCompleter.complete(phone);
+                  phoneCompleter.complete(phone)
                 }}
               >
                 Phone
@@ -100,13 +101,13 @@ export const TelegramLogin: React.FC<{
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyUp={(e) => {
                   if (e.key === 'Enter') {
-                    passwordCompleter.complete(password);
+                    passwordCompleter.complete(password)
                   }
                 }}
               />
               <button
                 onClick={() => {
-                  passwordCompleter.complete(password);
+                  passwordCompleter.complete(password)
                 }}
               >
                 Password
@@ -122,13 +123,13 @@ export const TelegramLogin: React.FC<{
                 onChange={(e) => setCode(e.target.value)}
                 onKeyUp={(e) => {
                   if (e.key === 'Enter') {
-                    codeCompleter.complete(code);
+                    codeCompleter.complete(code)
                   }
                 }}
               />
               <button
                 onClick={() => {
-                  codeCompleter.complete(code);
+                  codeCompleter.complete(code)
                 }}
               >
                 Code
@@ -143,8 +144,8 @@ export const TelegramLogin: React.FC<{
           <p>Has session</p>
           <button
             onClick={async () => {
-              await authRepository.logout();
-              setAuthState(AuthState.INIT);
+              await authRepository.logout()
+              setAuthState(AuthState.INIT)
             }}
           >
             Logout
@@ -152,5 +153,5 @@ export const TelegramLogin: React.FC<{
         </>
       )}
     </div>
-  );
-};
+  )
+}

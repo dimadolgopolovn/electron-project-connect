@@ -11,6 +11,20 @@ import Sidebar from '../Components/Sidebar'
 import { Allotment } from 'allotment'
 import 'allotment/dist/style.css'
 import HamburgerButton from '../Components/HamburgerButton'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '../ShadcnComponents/Dialog'
+import { TelegramLogin } from '../features/auth/telegram/TelegramLogin'
+import { WhatsappLogin } from '../features/auth/whatsapp/WhatsappLogin'
+import { useChatModules } from '../Contexts/ChatModulesContext'
+import { useDialogs } from '../Hooks/useDialogs'
 // TODO Dima: Types are wrong. Allotment.Pane.maxSize supports strings too. Same with defaultSizes
 
 const MAIN_BACKGROUND_COLOR = '#08090A'
@@ -100,19 +114,83 @@ const CustomAllotment = styled(Allotment)`
   }
 `
 
+const CustomDialogContent = styled(DialogContent)`
+  width: 300px;
+  height: 90%;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+
+  /* center */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: #999;
+
+  z-index: 100;
+`
+
 const MainChatApp: React.FC = () => {
+  // component
   const inputRef = useRef(null)
   const inputClearRef = useRef<Function | null>(null)
+
+  // chats and api
+  const { telegramModule, whatsappModule } = useChatModules()
+  const {
+    dialogsList,
+    isLoading: isDialogsLoading,
+    // we could add loadDialogs here too
+    error: dialogsError,
+  } = useDialogs({
+    limit: 10,
+    ignorePinned: false,
+    archived: false,
+  })
+  const [selectedChatIndex, setSelectedChatIndex] = useState(-1)
+
+  // sidebars and modules
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+  const showSettings = () => {
+    setIsSettingsOpen(true)
+  }
 
   const addMessage = (data: number) => {
     // here we empty the input, and do out thing. I'll implement it when we connect to the APIs.
   }
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
   return (
     <>
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}>
+        <button onClick={showSettings}>Settings</button>
+      </Sidebar>
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <CustomDialogContent>
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>
+              Adjust your application settings here.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto">
+            <h3>Telegram</h3>
+            {telegramModule && (
+              <TelegramLogin authRepository={telegramModule.authRepository} />
+            )}
+            <br />
+            <h3>WhatsApp</h3>
+            {whatsappModule && <WhatsappLogin module={whatsappModule} />}
+          </div>
+          <DialogFooter className="sm:justify-end">
+            <DialogClose asChild>
+              <button type="button">Close</button>
+            </DialogClose>
+          </DialogFooter>
+        </CustomDialogContent>
+      </Dialog>
       <MainContainer>
         <Header>
           <HamburgerButton
@@ -127,13 +205,13 @@ const MainChatApp: React.FC = () => {
             maxSize={Infinity}
             preferredSize={'300px'}
           >
-            <ChatList />
+            <ChatList chatList={dialogsList} />
           </Allotment.Pane>
           <Allotment.Pane>
             <ChatViewPaneContainer>
               <ChatViewContainer>
                 <MessageListContainer>
-                  <MessageList />
+                  <MessageList dialogEntity={dialogsList[selectedChatIndex]} />
                 </MessageListContainer>
                 <CustomInput
                   placeholder="Press Enter to start typing"

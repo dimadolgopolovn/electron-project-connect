@@ -1,6 +1,13 @@
-import React from 'react'
-import { MessageList, MessageType } from 'react-chat-elements'
+import React, { useCallback, useEffect, useState } from 'react'
+import { IChatItemProps, MessageList, MessageType } from 'react-chat-elements'
 import 'react-chat-elements/dist/main.css'
+import styled from '@emotion/styled'
+import { DialogEntity } from '../modules/common/entities/dialog_list_entities'
+import { mapArrayWithDateToDateString } from '../util'
+import { LastMessageEntity } from '../modules/common/entities/dialog_entities'
+import { useTelegramChat } from '../Hooks/useTelegramChat'
+import { type TotalList } from 'telegram/Helpers'
+import { type Api } from 'telegram'
 
 const TITLE_COLOR = '#A0A8AF'
 const DATE_COLOR = '#A1AAB3'
@@ -37,9 +44,6 @@ const messages: MessageType[] = [
   //   date: new Date(),
   // },
 ]
-
-import styled from '@emotion/styled'
-import { mapArrayWithDateToDateString } from '../util'
 
 const StyledMessageList = styled(MessageList)`
   margin-top: 18px;
@@ -109,11 +113,89 @@ const StyledMessageList = styled(MessageList)`
     }
   }
 `
+const ChatView: React.FC<{ dialogEntity: DialogEntity }> = ({
+  dialogEntity,
+}) => {
+  const ref = React.createRef<HTMLDivElement>()
 
-const ChatView: React.FC = () => {
-  const ref = React.createRef()
+  const telegramModule = useTelegramChat()
 
-  const datedMessages = mapArrayWithDateToDateString(messages)
+  // Mind that messages have to be converted and dated for UI
+  const [messages, setMessages] = useState<MessageType[]>([])
+  const [hasMore, setHasMore] = useState(true)
+
+  // depends on chatId, chatRepository (why?), newerThanId?
+  const fetchMessages = async (lastMessageId?: number) => {
+    try {
+      // TODO: Replace this with actual API call to fetch messages
+      const fetchedMessages = await telegramModule?.chatRepository.getMessages(
+        dialogEntity.id!,
+        {
+          limit: 15,
+          maxId: lastMessageId,
+        },
+      )
+      // TODO: Is this the best way to work with fetchedMessages = undefined?
+      if (fetchedMessages?.length === 0) {
+        setHasMore(false)
+      }
+      return fetchedMessages || []
+    } catch (error) {
+      console.error('Error fetching messages:', error)
+      return []
+    }
+  }
+
+  const getMessages = async (lastMessageId?: number) => {
+    const fetchedMessages = await fetchMessages(lastMessageId)
+
+    const convertToMessageListFormat = (
+      messages: TotalList<Api.Message>,
+    ): MessageType[] => {
+      return messages.map((message) => ({
+        id: message.id,
+        position: 'left',
+        type: 'text',
+        title: String(message.fromId) || 'Unknown',
+        text: message.message || '',
+        date: new Date(message.date),
+        status: 'received',
+        // You might want to add more properties here based on the MessageList component's requirements
+      }))
+    }
+
+    if (fetchedMessages) {
+      const convertedMessages = mapArrayWithDateToDateString(
+        convertToMessageListFormat(fetchedMessages),
+      )
+      setMessages((prevMessages) => [...prevMessages, ...convertedMessages])
+    }
+  }
+
+  useEffect(() => {
+    setMessages([])
+    setHasMore(true)
+    getMessages()
+
+    // Add new message handler
+    // dialogEntity.messengerId.dialogsRepository.addNewMessageHandler(
+    //   onNewMessage,
+    // )
+
+    return () => {
+      // Remove new message handler on cleanup
+      // dialogEntity.messengerId.dialogsRepository.removeNewMessageHandler(
+      //   onNewMessage,
+      // )
+    }
+  }, [dialogEntity?.id])
+
+  const loadMoreMessages = () => {
+    if (messages.length > 0) {
+      const oldestMessageId = messages[0].id as string
+      getMessages(Number(oldestMessageId))
+    }
+  }
 
   return (
     <StyledMessageList
@@ -121,7 +203,8 @@ const ChatView: React.FC = () => {
       className="message-list"
       lockable={true}
       toBottomHeight={'100%'}
-      dataSource={datedMessages}
+      dataSource={messages}
+      // Add onLoadMore, hasMore (?)
     />
   )
 }

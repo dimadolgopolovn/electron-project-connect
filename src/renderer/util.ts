@@ -1,5 +1,11 @@
 import { IChatItemProps, MessageType } from 'react-chat-elements'
 
+/**
+ * Dates come as type number. Here we convert it to format we need in UI.
+ * If same day, 2-digit hours with locale (24hr or ampm).
+ * If it's the same week, it's 3-letter day of week.
+ * If it's earlier, it's mm/dd with the right locale.
+ * */
 function mapArrayWithDateToDateString(chats: IChatItemProps[]): IChatItemProps[]
 function mapArrayWithDateToDateString(chats: MessageType[]): MessageType[]
 function mapArrayWithDateToDateString(

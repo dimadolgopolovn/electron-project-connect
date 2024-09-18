@@ -39,12 +39,12 @@ const SidebarTrigger = styled.div`
   z-index: 9;
 `
 
-interface SidebarProps {
+interface SidebarProps extends React.HTMLProps<HTMLDivElement> {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, ...props }) => {
   const sidebarRef = useRef<HTMLDivElement>(null)
 
   const handleSidebarTriggerMouseEnter = () => {
@@ -75,6 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         <SidebarTrigger onMouseEnter={handleSidebarTriggerMouseEnter} />
         <SidebarContainer isOpen={isOpen}>
           {/* Sidebar content */}
+          {props.children}
         </SidebarContainer>
       </ComponentWrapper>
     </>
