@@ -16,11 +16,6 @@ export class NotificationsRepository {
           'https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png'; //TODO: change this
         break;
     }
-    console.log('Notification', {
-      type: message.messengerId,
-      title: NOTIFICATION_TITLE,
-      body: NOTIFICATION_BODY,
-    });
     new window.Notification(NOTIFICATION_TITLE, {
       body: NOTIFICATION_BODY,
       data: message,

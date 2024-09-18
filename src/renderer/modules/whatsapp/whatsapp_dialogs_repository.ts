@@ -35,10 +35,12 @@ export class WhatsappDialogsRepository extends DialogsRepository {
 
   addNewMessageHandler(callback: (event: LastMessageEntity) => void): void {
     const waCallback = async (message: Message) => {
-      const chatId = await message.getChat();
+      const chat = await message.getChat();
+      const muted = (chat.isMuted || chat.archived) ?? false;
       const lastMessage = WhatsAppConverters.toLastMessageEntity(
         message,
-        chatId.id.user,
+        chat.id.user,
+        muted,
       );
       callback(lastMessage);
     };

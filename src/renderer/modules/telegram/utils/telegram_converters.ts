@@ -10,6 +10,7 @@ import { DialogEntity } from '../../common/entities/dialog_list_entities';
 export class TelegramConverters {
   static toLastMessageEntity = (
     lastMessage: Api.Message,
+
     dialogId?: bigInt.BigInteger,
   ): LastMessageEntity => {
     const messengerId = 'telegram';

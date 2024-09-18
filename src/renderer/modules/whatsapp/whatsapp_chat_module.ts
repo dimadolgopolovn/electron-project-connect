@@ -25,10 +25,7 @@ export class WhatsappChatModule extends ChatModule {
     this.client = client;
     this.authQr = authQr;
     this.onReady = onReady;
-    onReady.then(() => {
-      console.log('WhatsApp client', this.client);
-      this.onAuthComplete.complete();
-    });
+    onReady.then(this.onAuthComplete.complete);
     this.dialogsRepository = new WhatsappDialogsRepository({
       client: this.client,
       messengerId: this.messengerId,
