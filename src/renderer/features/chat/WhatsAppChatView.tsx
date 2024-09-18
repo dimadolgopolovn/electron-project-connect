@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Chat, Message } from 'whatsapp-web.js';
 import { DialogEntity } from '../../modules/common/entities/dialog_list_entities';
-import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp-chat-module';
+import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp_chat_module';
 
 const MessageContainer = styled.div`
   display: flex;

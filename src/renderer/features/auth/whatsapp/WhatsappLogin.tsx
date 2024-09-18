@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { atom, useRecoilState } from 'recoil';
 import { AuthState } from '../../../modules/common/enums/auth_state';
-import { WhatsappChatModule } from '../../../modules/whatsapp/whatsapp-chat-module';
+import { WhatsappChatModule } from '../../../modules/whatsapp/whatsapp_chat_module';
 
 export const whatsappAuthState = atom({
   key: 'whatsappAuthState',

@@ -63,5 +63,6 @@ export const toDialogEntity = (
     isGroup: dialog.isGroup,
     isChannel: dialog.isChannel,
     photoBase64: chatPhoto,
+    nativeChatObject: dialog,
   };
 };

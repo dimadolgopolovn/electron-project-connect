@@ -6,8 +6,8 @@ import { DialogAggregator } from '../../modules/common/aggregators/dialogs_aggre
 import { ChatModule } from '../../modules/common/chat_module';
 import { LastMessageEntity } from '../../modules/common/entities/dialog_entities';
 import { DialogEntity } from '../../modules/common/entities/dialog_list_entities';
-import { TelegramChatModule } from '../../modules/telegram/telegram-chat-module';
-import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp-chat-module';
+import { TelegramChatModule } from '../../modules/telegram/telegram_chat_module';
+import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp_chat_module';
 import { ChatView } from '../chat/ChatView';
 import { SettingsView } from '../settings/SettingsView';
 import { DialogTile } from './widgets/DialogTile';

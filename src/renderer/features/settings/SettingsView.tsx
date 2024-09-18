@@ -1,5 +1,5 @@
-import { TelegramChatModule } from '../../modules/telegram/telegram-chat-module';
-import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp-chat-module';
+import { TelegramChatModule } from '../../modules/telegram/telegram_chat_module';
+import { WhatsappChatModule } from '../../modules/whatsapp/whatsapp_chat_module';
 import { TelegramLogin } from '../auth/telegram/TelegramLogin';
 import { WhatsappLogin } from '../auth/whatsapp/WhatsappLogin';
 

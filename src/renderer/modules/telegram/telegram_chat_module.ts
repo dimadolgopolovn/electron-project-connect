@@ -1,10 +1,9 @@
-import { TelegramClient } from 'telegram';
+import { Api, TelegramClient } from 'telegram';
 import { StoreSession } from 'telegram/sessions';
 import { ChatModule } from '../common/chat_module';
 import { DialogsRepository } from '../common/repositories/dialogs_repository';
 import { Completer } from '../common/utils/completer';
 import { TelegramAuthRepository } from './repositories/telegram_auth_repository';
-import { TelegramChatRepository } from './repositories/telegram_chat_repository';
 import { TelegramDialogsRepository } from './repositories/telegram_dialogs_repository';
 
 export class TelegramChatModule extends ChatModule {
@@ -29,15 +28,12 @@ export class TelegramChatModule extends ChatModule {
     this.authRepository = new TelegramAuthRepository({
       telegramClient: this.client,
     });
-    this.chatRepository = new TelegramChatRepository({
-      telegramClient: this.client,
-    });
   }
 
   client: TelegramClient;
   dialogsRepository: DialogsRepository;
   authRepository: TelegramAuthRepository;
-  chatRepository: TelegramChatRepository;
+  myUser: Api.User | undefined;
 
   messengerId = 'telegram';
 
@@ -53,8 +49,7 @@ export class TelegramChatModule extends ChatModule {
 
   async fetchMyUser() {
     try {
-      const myUser = await this.authRepository.getMyUser();
-      this.chatRepository.setMyUserId(myUser.id);
+      this.myUser = await this.authRepository.getMyUser();
     } catch (error) {
       console.log('Error fetching my user)');
     }

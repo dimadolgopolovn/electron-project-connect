@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Api } from 'telegram';
+import { Api, TelegramClient } from 'telegram';
 import { NewMessage, NewMessageEvent } from 'telegram/events';
+import { Dialog } from 'telegram/tl/custom/dialog';
 import { DialogEntity } from '../../modules/common/entities/dialog_list_entities';
-import { TelegramChatRepository } from '../../modules/telegram/repositories/telegram_chat_repository';
-import { TelegramChatModule } from '../../modules/telegram/telegram-chat-module';
+import { TelegramChatModule } from '../../modules/telegram/telegram_chat_module';
 
 const MessageContainer = styled.div`
   display: flex;
@@ -91,15 +91,34 @@ const formatTime = (date: number) => {
 };
 
 const fetchMessages = async (
-  chatId: string,
-  chatRepository: TelegramChatRepository,
+  client: TelegramClient,
+  peer: Api.TypePeer,
   newerThanId?: number | undefined,
 ): Promise<Api.Message[]> => {
-  const messages = await chatRepository.getMessages(chatId, {
+  let chatId: bigInt.BigInteger | undefined;
+  switch (peer.className) {
+    case 'PeerUser':
+      chatId = peer.userId;
+      break;
+    case 'PeerChat':
+      chatId = peer.chatId;
+      break;
+    case 'PeerChannel':
+      chatId = peer.channelId;
+      break;
+  }
+  const messages = await client.getMessages(chatId, {
     limit: 15,
     maxId: newerThanId,
   });
   return messages;
+};
+
+const isMyMessage = (chatModule: TelegramChatModule, msg: Api.Message) => {
+  const myId = chatModule.myUser?.id;
+  const messageSenderId = msg.senderId;
+  if (!myId || !messageSenderId) return false;
+  return myId.equals(messageSenderId);
 };
 
 const downloadPhoto = async (
@@ -144,14 +163,17 @@ export const TelegramChatView: React.FC<{
   chatModule: TelegramChatModule;
   dialogEntity: DialogEntity;
 }> = ({ chatModule, dialogEntity }) => {
+  const dialog = dialogEntity.nativeChatObject as Dialog;
+
   const [messages, setMessages] = useState<Api.Message[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [inputValue, setInputValue] = useState('');
   const getMessages = async (lastMessageId: number | undefined) => {
     try {
+      console.log('Fetching messages...', dialog.dialog);
       const fetchedMessages = await fetchMessages(
-        dialogEntity.id!,
-        chatModule.chatRepository,
+        chatModule.client,
+        dialog.dialog.peer,
         lastMessageId,
       );
       if (fetchedMessages.length === 0) {
@@ -178,7 +200,7 @@ export const TelegramChatView: React.FC<{
     setHasMore(true);
     getMessages(undefined);
     // chatModule.client.removeEventHandler(onNewMessage, new NewMessage({})); //TODO: connect logout func to removeEventHandler
-  }, [dialogEntity.id]);
+  }, [dialog]);
 
   useEffect(() => {
     chatModule.client.addEventHandler(onNewMessage, new NewMessage({}));
@@ -228,7 +250,7 @@ export const TelegramChatView: React.FC<{
         >
           {messages.map((msg, index) => (
             <MessageContainer key={index}>
-              {chatModule.chatRepository.isMyMessage(msg) ? (
+              {isMyMessage(chatModule, msg) ? (
                 <UserMessage>
                   {msg.media && <PhotoMessage message={msg} />}
                   {msg.text}
@@ -239,7 +261,7 @@ export const TelegramChatView: React.FC<{
                   {msg.text}
                 </OtherMessage>
               )}
-              <TimeStamp isUser={chatModule.chatRepository.isMyMessage(msg)}>
+              <TimeStamp isUser={isMyMessage(chatModule, msg)}>
                 {formatTime(msg.date)}
               </TimeStamp>
             </MessageContainer>

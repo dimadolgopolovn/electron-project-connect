@@ -6,7 +6,10 @@ import {
   GetDialogsRequest,
 } from '../../common/entities/dialog_list_entities';
 import { DialogsRepository } from '../../common/repositories/dialogs_repository';
-import { toDialogEntity, toLastMessageEntity } from '../utils/converters';
+import {
+  toDialogEntity,
+  toLastMessageEntity,
+} from '../utils/telegram_converters';
 
 export class TelegramDialogsRepository extends DialogsRepository {
   constructor({
